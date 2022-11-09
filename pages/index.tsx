@@ -1,8 +1,16 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import GLOBALS from '../global.json';
+import axios from 'axios';
+import React from 'react';
 
 export default function Home() {
+  const [keyword, setKeyword] = React.useState<string>('')
+  React.useEffect(() => {
+    axios.get(GLOBALS.BASE_URL)
+
+  }, [])
   return (
     <div className={styles.container}>
       <Head>
@@ -12,6 +20,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
