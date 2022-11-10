@@ -203,7 +203,6 @@ export default function Home() {
             <div className='flex flex-col items-center justify-center'>
               {/* Win or Lose message */}
               {status === 'win' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
-              <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>
               {status === 'lose' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
               <button
                 onClick={handleNewGame}
