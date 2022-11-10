@@ -5,56 +5,136 @@ import GLOBALS from '../global.json';
 import axios from 'axios';
 import React from 'react';
 import Key from '../components/Key'
-interface Character {
+import Man from '../components/Man'
+import Modal from 'react-modal'
+import { motion } from 'framer-motion'
+import { useWindowSize } from '../helpers/useWindowSize'
 
+interface Size {
+  width: number,
+  height: number
 }
 
+// TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
+  const winSize: Size = useWindowSize();
   const [keywords, setKeywords] = React.useState<string[]>([])
-  const [status, setStatus] = React.useState<string>()
+  const [status, setStatus] = React.useState<string>('')
   const [guesses, setGuesses] = React.useState<string[]>([])
-  const count = React.useRef<number>(0)
-  React.useEffect(() => {
-    // axios.get(GLOBALS.BASE_URL, {
-    //   headers: {
-    //     'X-Api-Key': process.env.NINJA_APIKEY
-    //   }
-    // })
-    //   .then((res) => {
-    //     setKeyword(res.data.word)
-    //     console.log(res.data)
-    //   })
-    // REMOVE this when fetching actual word
-    const word = 'keyword'
-    const splitWord = word.split('')
-    setKeywords(splitWord)
-  }, [])
+  const [lives, setLives] = React.useState<number>(6)
+  const [modal, setModal] = React.useState<boolean>(false)
+  const [error, setError] = React.useState<string>('')
+  Modal.setAppElement('#modals')
 
-  const checkGuess = (guesses: string[], newGuess: string, method: string = 'some' ) => {
+  const fetchNewWord = async (url: string, cb: any) => {
+    setStatus('loading')
+    await axios.get(url, {
+      headers: {
+        'X-Api-Key': process.env.NINJA_APIKEY
+      }
+    })
+      .then((res) => {
+        setStatus('success')
+        cb(res.data, true)
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err.response.data);
+          console.log(err.response.status);
+          console.log(err.response.headers);
+          setError("Failed to get new word. Please try again later!")
+        } else if (err.request) {
+          console.log(err.request);
+          setError("Failed to get new word. Please try again later!")
+        } else {
+          console.log('Error', err.message)
+          setError(err.message)
+        }
+        console.log(err.config)
+        setStatus('fail')
+        cb('', false)
+      })
+  }
+
+
+  const checkGuess = (guesses: string[], newGuess: string, method: string = 'some') => {
     if (guesses.length == 0) return false;
     return guesses.some((k: string) => {
       return k.toLowerCase() === newGuess.toLowerCase()
     })
   }
 
-  const checkSuccess = (guesses: string[], keywords: string[] ) => {
+  const checkResult = (guesses: string[], keywords: string[]) => {
     let count = 0;
     keywords.some((k: string) => {
       const isGuessed = checkGuess(guesses, k) // can use array Every method to reduce loops
       if (isGuessed) count++
     })
-    if (count == keywords.length) setStatus('success')
+    // don't have to worry about this cause in live, it will be overlap when fetch
+    if (count === keywords.length && keywords.length > 0) {
+      setStatus('win')
+    }
   }
 
-  const newGame = () => {
-    // get new word
+  const checkLives = (result: boolean, lives: number) => {
+    if (result) return;
+    const newLives = lives - 1
+    if (newLives <= 0) setStatus('lose')
+    setLives(prev => (prev - 1))
+  }
+
+  const handleNewGame = () => {
+    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+      if (success) {
+        const splitWord = res.word.split('')
+        setKeywords(splitWord)
+      }
+    })
     setGuesses([])
+    setLives(6)
+    setModal(false)
+  }
+  const handleTryAgain = () => {
+    setGuesses([])
+    setLives(6)
+    setModal(false)
   }
 
+  // monitor guesses
   React.useEffect(() => {
     // check if all keywords are guessed
-    checkSuccess(guesses, keywords)
+    checkResult(guesses, keywords)
   }, [guesses])
+
+  // monitor status
+  React.useEffect(() => {
+    if (status === 'win' || status === 'lose') {
+      // show win message
+      setModal(true)
+    }
+  }, [status])
+
+
+  React.useEffect(() => {
+    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+      if (success) {
+        const data = res
+        const splitWord = data.word.split('')
+        setKeywords(splitWord)
+      }
+    })
+  }, [])
+
+  const modalStyles = {
+    content: {
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+    },
+    overlay: {
+      background: "#FF00",
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -65,31 +145,78 @@ export default function Home() {
       </Head>
 
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
-        <div className='flex flex-row text-[4rem] leading-5 tracking-[2rem] mb-32 select-none'>
-          {keywords?.map((keyword, idx) => {
-            const isGuessed = checkGuess(guesses, keyword)
-            return (
-              <div key={idx}>
-                {isGuessed ? keyword : '_'}
-              </div>
-            )
-          })}
+        <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-32'>
+          <Man lives={lives} winSize={winSize} className='mr-0 lg:mr-16 mb-16 lg:mb-0' />
+          <div className='flex flex-row text-xl sm:text-[4rem] leading-5 tracking-[2rem] select-none'>
+            {status !== 'loading' ? keywords?.map((keyword, idx) => {
+              const isGuessed = checkGuess(guesses, keyword)
+              return (
+                <div key={idx}>
+                  {isGuessed ? keyword : '_'}
+                </div>
+              )
+            }) :
+              <>
+                {'loading'.split('').map((w, idx) => (
+                  <Key
+                    key={idx}
+                    className='animate-bounce cursor-auto'
+                    title={w}
+                  />
+                ))}
+              </>
+            }
+          </div>
         </div>
+        {/* ALPHABET */}
         <div className='flex flex-wrap'>
           {GLOBALS.ALPHABET.map((key, idx) => {
             const isGuessed = checkGuess(guesses, key)
             return (
-              <Key key={idx} disabled={isGuessed} className='flex disabled:cursor-default disabled:opacity-50 uppercase mr-2 mb-2 rounded-md justify-center items-center cursor-pointer w-6 border-2 border-white' title={key} onClick={() => setGuesses(prev => ([...prev, key]))} />
+              <Key key={idx} disabled={isGuessed}
+                className={` ${status == 'lose' && 'cursor-default'}`}
+                title={key}
+                onClick={() => {
+                  if (status == 'lose') return;
+                  const isCorrect = checkGuess(keywords, key)
+                  checkLives(isCorrect, lives)
+                  setGuesses(prev => ([...prev, key]))
+                }} />
             )
           })}
         </div>
-        <div>
-          Result: {status}
+        {error &&
+          <div className='flex flex-col'>
+            Error: {error}
+          </div>
+        }
+        <div id='modals'>
+          <Modal
+            isOpen={modal}
+            ariaHideApp={false}
+            style={modalStyles}
+            contentLabel="Result Modal">
+            {/* Win or Lose message */}
+            {status === 'win' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
+            {status === 'lose' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
+            <button
+              onClick={handleNewGame}
+              className='text-black text-center absolute bottom-10 left-[30%] sm:left-[40%] lg:left-[43%] p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+              New Word
+            </button>
+            {status === 'lose' &&
+              <button
+                onClick={handleTryAgain}
+                className='text-black text-center absolute bottom-28 left-[30%] sm:left-[40%] lg:left-[43%] p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+                Try Again
+              </button>
+            }
+          </Modal>
         </div>
 
       </main>
 
-      <footer className={styles.footer}>
+      {/* <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
@@ -100,7 +227,7 @@ export default function Home() {
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
-      </footer>
+      </footer> */}
     </div>
   )
 }
