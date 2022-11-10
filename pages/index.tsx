@@ -96,6 +96,7 @@ export default function Home() {
   }
   const handleTryAgain = () => {
     setGuesses([])
+    setStatus('')
     setLives(6)
     setModal(false)
   }
@@ -173,7 +174,8 @@ export default function Home() {
           {GLOBALS.ALPHABET.map((key, idx) => {
             const isGuessed = checkGuess(guesses, key)
             return (
-              <Key key={idx} disabled={isGuessed}
+              <Key key={idx}
+                disabled={isGuessed || status==='loading'}
                 className={` ${status == 'lose' && 'cursor-default'}`}
                 title={key}
                 onClick={() => {
@@ -216,18 +218,19 @@ export default function Home() {
 
       </main>
 
-      {/* <footer className={styles.footer}>
+      <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          @ 2020
+          <span className='mx-2'>
+            <Image src="/favicon.ico" alt="Logo" width={24} height={24} />
           </span>
+          Thanh Diep
         </a>
-      </footer> */}
+      </footer>
     </div>
   )
 }
