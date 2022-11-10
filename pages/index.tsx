@@ -22,7 +22,7 @@ export default function Home() {
   const [status, setStatus] = React.useState<string>('')
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(6)
-  const [modal, setModal] = React.useState<boolean>(true)
+  const [modal, setModal] = React.useState<boolean>(false)
   const [error, setError] = React.useState<string>('')
   Modal.setAppElement('#modals')
 
@@ -116,15 +116,15 @@ export default function Home() {
   }, [status])
 
 
-  // React.useEffect(() => {
-  //   fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
-  //     if (success) {
-  //       const data = res
-  //       const splitWord = data.word.split('')
-  //       setKeywords(splitWord)
-  //     }
-  //   })
-  // }, [])
+  React.useEffect(() => {
+    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+      if (success) {
+        const data = res
+        const splitWord = data.word.split('')
+        setKeywords(splitWord)
+      }
+    })
+  }, [])
 
   const modalStyles = {
     content: {
