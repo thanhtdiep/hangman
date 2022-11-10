@@ -78,6 +78,7 @@ const Man: FC<Props> = ({ winSize, lives, className }) => {
                     cy={90*SCALE}
                     r={40*SCALE}
                     stroke="white"
+                    fill='transparent'
                     strokeWidth={3}
                 />
             }

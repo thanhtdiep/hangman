@@ -22,7 +22,7 @@ export default function Home() {
   const [status, setStatus] = React.useState<string>('')
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(6)
-  const [modal, setModal] = React.useState<boolean>(false)
+  const [modal, setModal] = React.useState<boolean>(true)
   const [error, setError] = React.useState<string>('')
   Modal.setAppElement('#modals')
 
@@ -116,20 +116,22 @@ export default function Home() {
   }, [status])
 
 
-  React.useEffect(() => {
-    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
-      if (success) {
-        const data = res
-        const splitWord = data.word.split('')
-        setKeywords(splitWord)
-      }
-    })
-  }, [])
+  // React.useEffect(() => {
+  //   fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+  //     if (success) {
+  //       const data = res
+  //       const splitWord = data.word.split('')
+  //       setKeywords(splitWord)
+  //     }
+  //   })
+  // }, [])
 
   const modalStyles = {
     content: {
       top: '50%',
       left: '50%',
+      marginTop: '25px',
+      marginBottom: '25px',
       transform: 'translate(-50%, -50%)',
     },
     overlay: {
@@ -148,7 +150,7 @@ export default function Home() {
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
         <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-32'>
           <Man lives={lives} winSize={winSize} className='mr-0 lg:mr-16 mb-16 lg:mb-0' />
-          <div className='flex flex-row text-xl sm:text-[4rem] leading-5 tracking-[2rem] select-none'>
+          <div className='flex flex-row text-white text-xl sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
             {status !== 'loading' ? keywords?.map((keyword, idx) => {
               const isGuessed = checkGuess(guesses, keyword)
               return (
@@ -158,7 +160,7 @@ export default function Home() {
               )
             }) :
               <>
-                {'loading'.split('').map((w, idx) => (
+                {'?'.split('').map((w, idx) => (
                   <Key
                     key={idx}
                     className='animate-bounce cursor-auto'
@@ -175,7 +177,7 @@ export default function Home() {
             const isGuessed = checkGuess(guesses, key)
             return (
               <Key key={idx}
-                disabled={isGuessed || status==='loading'}
+                disabled={isGuessed || status === 'loading'}
                 className={` ${status == 'lose' && 'cursor-default'}`}
                 title={key}
                 onClick={() => {
@@ -198,21 +200,25 @@ export default function Home() {
             ariaHideApp={false}
             style={modalStyles}
             contentLabel="Result Modal">
-            {/* Win or Lose message */}
-            {status === 'win' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
-            {status === 'lose' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
-            <button
-              onClick={handleNewGame}
-              className='text-black text-center absolute bottom-10 left-[30%] sm:left-[40%] lg:left-[43%] p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
-              New Word
-            </button>
-            {status === 'lose' &&
+            <div className='flex flex-col items-center justify-center'>
+              {/* Win or Lose message */}
+              {status === 'win' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
+              <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>
+              {status === 'lose' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
               <button
-                onClick={handleTryAgain}
-                className='text-black text-center absolute bottom-28 left-[30%] sm:left-[40%] lg:left-[43%] p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
-                Try Again
+                onClick={handleNewGame}
+                className='text-black justify-center mt-[4rem] text-center p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+                New Word
               </button>
-            }
+              {status === 'lose' &&
+                <button
+                  onClick={handleTryAgain}
+                  className='text-black mt-[1rem]  text-center p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+                  Try Again
+                </button>
+              }
+
+            </div>
           </Modal>
         </div>
 
