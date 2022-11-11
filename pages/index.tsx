@@ -133,6 +133,7 @@ export default function Home() {
       marginTop: '25px',
       marginBottom: '25px',
       transform: 'translate(-50%, -50%)',
+      background: 'black'
     },
     overlay: {
       background: "#FF00",
@@ -202,17 +203,17 @@ export default function Home() {
             contentLabel="Result Modal">
             <div className='flex flex-col items-center justify-center'>
               {/* Win or Lose message */}
-              {status === 'win' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
-              {status === 'lose' && <h1 className='text-black text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
+              {status === 'win' && <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
+              {status === 'lose' && <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
               <button
                 onClick={handleNewGame}
-                className='text-black justify-center mt-[4rem] text-center p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+                className='text-white justify-center mt-[4rem] text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
                 New Word
               </button>
               {status === 'lose' &&
                 <button
                   onClick={handleTryAgain}
-                  className='text-black mt-[1rem]  text-center p-2 rounded-lg border-2 border-black hover:bg-black hover:text-white w-[6rem]'>
+                  className='text-white mt-[1rem]  text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
                   Try Again
                 </button>
               }
