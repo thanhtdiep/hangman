@@ -7,8 +7,12 @@ import React from 'react';
 import Key from '../components/Key'
 import Man from '../components/Man'
 import Modal from 'react-modal'
+import Lottie from "lottie-react";
 import { motion } from 'framer-motion'
 import { useWindowSize } from '../helpers/useWindowSize'
+import winAnimation from '../public/lottie/hangman-win.json'
+import loseAnimation from '../public/lottie/hangman-lose.json'
+import confettiAnimation from '../public/lottie/confetti.json'
 
 interface Size {
   width: number,
@@ -86,7 +90,7 @@ export default function Home() {
   const handleNewGame = () => {
     fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
       if (success) {
-        const splitWord = res.word.split('')
+        const splitWord = res.word.toLowerCase().split('')
         setKeywords(splitWord)
       }
     })
@@ -130,8 +134,7 @@ export default function Home() {
     content: {
       top: '50%',
       left: '50%',
-      marginTop: '25px',
-      marginBottom: '25px',
+      marginBottom: winSize.width < 768 ? '-10%' : '0%',
       transform: 'translate(-50%, -50%)',
       background: 'black'
     },
@@ -149,9 +152,15 @@ export default function Home() {
       </Head>
 
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
+        {status === 'win' &&
+          <Lottie
+            animationData={confettiAnimation}
+            loop={false}
+            className='absolute bottom-0 z-30 w-full pointer-events-none'
+          />}
         <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-24'>
           <Man lives={lives} winSize={winSize} className='mr-0 lg:mr-16 mb-16 lg:mb-0' />
-          <div className='flex flex-row text-white text-xl sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
+          <div className='flex flex-row lowercase text-white text-xl sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
             {status !== 'loading' ? keywords?.map((keyword, idx) => {
               const isGuessed = checkGuess(guesses, keyword)
               return (
@@ -203,17 +212,33 @@ export default function Home() {
             contentLabel="Result Modal">
             <div className='flex flex-col items-center justify-center'>
               {/* Win or Lose message */}
-              {status === 'win' && <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Win!</h1>}
-              {status === 'lose' && <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Lose!</h1>}
+              {status === 'win' &&
+                [
+                  <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Win!</h1>,
+                  <Lottie
+                    animationData={winAnimation}
+                    loop={false}
+                    className='w-[6rem]'
+                  />
+                ]}
+              {status === 'lose' &&
+                [
+                  < h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Lose!</h1>,
+                  <Lottie
+                    animationData={loseAnimation}
+                    loop={true}
+                    className='w-[6rem]'
+                  />
+                ]}
               <button
                 onClick={handleNewGame}
-                className='text-white justify-center mt-[4rem] text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
+                className='text-white z-25 justify-center mt-[4rem] text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
                 New Word
               </button>
               {status === 'lose' &&
                 <button
                   onClick={handleTryAgain}
-                  className='text-white mt-[1rem]  text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
+                  className='text-white z-25 mt-[1rem] text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
                   Try Again
                 </button>
               }
@@ -222,7 +247,7 @@ export default function Home() {
           </Modal>
         </div>
 
-      </main>
+      </main >
 
       <footer className={styles.footer}>
         <a
@@ -232,12 +257,12 @@ export default function Home() {
           rel="noopener noreferrer"
 
         >
-          by 
+          by
           <span className='mx-2'>
             <Image src="/logo32.png" alt="Logo" width={24} height={24} />
           </span>
         </a>
       </footer>
-    </div>
+    </div >
   )
 }
