@@ -126,6 +126,7 @@ export default function Home() {
   // monitor guesses
   React.useEffect(() => {
     // check if all keywords are guessed
+    // TODO: IMPROVEMENT - Move this code directly to where setGuesses is performed
     checkResult(guesses, keywords)
   }, [guesses])
 
