@@ -1,5 +1,11 @@
 {
     "BASE_URL": "https://api.api-ninjas.com/v1/randomword",
+    "INSTRUCTION": [
+        "GOAL - Guess the hidden word.",
+        "CORRECT GUESS - A character is revealed. Win when the word is revealed. ",
+        "INCORRECT GUESS - A stroke is drawn. Lose when a hangman is full drawn.",
+        "Tips: Generally, start by guessing common letters like vowels, or 's', 't', and 'n'."
+    ],
     "ALPHABET": [
         "a",
         "b",

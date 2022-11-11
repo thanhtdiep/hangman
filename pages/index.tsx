@@ -25,7 +25,7 @@ export default function Home() {
   const [keywords, setKeywords] = React.useState<string[]>([])
   const [status, setStatus] = React.useState<string>('')
   const [guesses, setGuesses] = React.useState<string[]>([])
-  const [lives, setLives] = React.useState<number>(6)
+  const [lives, setLives] = React.useState<number>(8)
   const [modal, setModal] = React.useState<boolean>(false)
   const [error, setError] = React.useState<string>('')
   Modal.setAppElement('#modals')
@@ -95,13 +95,13 @@ export default function Home() {
       }
     })
     setGuesses([])
-    setLives(6)
+    setLives(8)
     setModal(false)
   }
   const handleTryAgain = () => {
     setGuesses([])
     setStatus('')
-    setLives(6)
+    setLives(8)
     setModal(false)
   }
 
