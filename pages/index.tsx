@@ -148,7 +148,7 @@ export default function Home() {
       </Head>
 
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
-        <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-32'>
+        <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-24'>
           <Man lives={lives} winSize={winSize} className='mr-0 lg:mr-16 mb-16 lg:mb-0' />
           <div className='flex flex-row text-white text-xl sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
             {status !== 'loading' ? keywords?.map((keyword, idx) => {
