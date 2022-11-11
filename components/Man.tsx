@@ -13,7 +13,7 @@ interface Size {
 
 const Man: FC<Props> = ({ winSize, lives, className }) => {
     const BREAKPOINT = 1028;
-    const SCALE = winSize.width < BREAKPOINT ? 0.5 : 1
+    const SCALE = winSize.width < BREAKPOINT ? .3 : .5
     //  resize when on phone
     return (
         <svg className={` ${className}`}

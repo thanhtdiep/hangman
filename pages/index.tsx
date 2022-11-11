@@ -225,15 +225,16 @@ export default function Home() {
 
       <footer className={styles.footer}>
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://thanhdiep.vercel.app/"
+          className='text-sm'
           target="_blank"
           rel="noopener noreferrer"
+
         >
-          @ 2020
+          by 
           <span className='mx-2'>
-            <Image src="/favicon.ico" alt="Logo" width={24} height={24} />
+            <Image src="/logo32.png" alt="Logo" width={24} height={24} />
           </span>
-          Thanh Diep
         </a>
       </footer>
     </div>
