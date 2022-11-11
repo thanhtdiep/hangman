@@ -18,11 +18,12 @@ interface Size {
   width: number,
   height: number
 }
-
+const KEYWORD = ['d', 'e', 'v']
+const DEV = true
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
-  const [keywords, setKeywords] = React.useState<string[]>([])
+  const [keywords, setKeywords] = React.useState<string[]>(DEV ? KEYWORD : [])
   const [status, setStatus] = React.useState<string>('')
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(8)
@@ -88,18 +89,20 @@ export default function Home() {
   }
 
   const handleNewGame = () => {
-    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
-      if (success) {
-        const splitWord = res.word.toLowerCase().split('')
-        setKeywords(splitWord)
-      }
-    })
+    if (!DEV) {
+      fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+        if (success) {
+          const splitWord = res.word.toLowerCase().split('')
+          setKeywords(splitWord)
+        }
+      })
+    } else setKeywords(KEYWORD)
     setGuesses([])
     setLives(8)
     setModal(false)
   }
   const handleTryAgain = () => {
-    setGuesses([])
+    //  show hint
     setStatus('')
     setLives(8)
     setModal(false)
@@ -121,13 +124,15 @@ export default function Home() {
 
 
   React.useEffect(() => {
-    fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
-      if (success) {
-        const data = res
-        const splitWord = data.word.split('')
-        setKeywords(splitWord)
-      }
-    })
+    if (!DEV) {
+      fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+        if (success) {
+          const data = res
+          const splitWord = data.word.split('')
+          setKeywords(splitWord)
+        }
+      })
+    }
   }, [])
 
   const modalStyles = {
@@ -159,7 +164,9 @@ export default function Home() {
             className='absolute bottom-0 z-30 w-full pointer-events-none'
           />}
         <div className='flex flex-col lg:flex-row justify-center items-center mb-16 sm:mb-24'>
+          {/* Lives */}
           <Man lives={lives} winSize={winSize} className='mr-0 lg:mr-16 mb-16 lg:mb-0' />
+          {/* Keyword */}
           <div className='flex flex-row lowercase text-white text-xl sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
             {status !== 'loading' ? keywords?.map((keyword, idx) => {
               const isGuessed = checkGuess(guesses, keyword)
@@ -214,7 +221,7 @@ export default function Home() {
               {/* Win or Lose message */}
               {status === 'win' &&
                 [
-                  <h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Win!</h1>,
+                  <h1 className='text-white text-center text-[2rem] mt-[2rem]'>Nice Job!</h1>,
                   <Lottie
                     animationData={winAnimation}
                     loop={false}
@@ -223,7 +230,7 @@ export default function Home() {
                 ]}
               {status === 'lose' &&
                 [
-                  < h1 className='text-white text-center text-[2rem] mt-[2rem]'>You Lose!</h1>,
+                  < h1 className='text-white text-center text-[2rem] mt-[2rem]'>Nice Try!</h1>,
                   <Lottie
                     animationData={loseAnimation}
                     loop={true}
