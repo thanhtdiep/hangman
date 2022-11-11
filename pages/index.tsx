@@ -116,13 +116,11 @@ export default function Home() {
     }
     setGuesses([])
     setLives(8)
-    // setModal(false)
   }
   const handleTryAgain = () => {
     //  show hint
     setStatus('')
     setLives(8)
-    // setModal(false)
   }
 
   // monitor guesses
@@ -150,12 +148,15 @@ export default function Home() {
         }
       })
     }
+    // show instructions
+    setModal(true)
   }, [])
 
   const modalStyles = {
     content: {
       top: '50%',
       left: '50%',
+      marginRight: winSize.width < 768 ? '-45%' : '',
       marginBottom: winSize.width < 768 ? '-10%' : '0%',
       transform: 'translate(-50%, -50%)',
       background: 'black'
@@ -285,7 +286,20 @@ export default function Home() {
             style={modalStyles}
             contentLabel="Result Modal">
             <div className='flex flex-col items-center justify-center'>
-
+              {/* Instruction & Tips */}
+              <button
+                onClick={() => setModal(false)}
+                className='mb-2 sm:mb-0 sm:absolute sm:top-8 sm:right-8 text-white bg-black hover:bg-white hover:text-black rounded-lg border-2 px-2 pb-1'>
+                x
+              </button>
+              <h1 className='text-[1rem] sm:text-[2rem] mb-[2rem] md:mb-[3rem] lg:mb-[5rem]'>Instructions</h1>
+              <ul className='list-disc px-2'>
+                {GLOBALS.INSTRUCTION.map((i, idx) => (
+                  <li key={idx} className='mb-2'>
+                    {i}
+                  </li>
+                ))}
+              </ul>
             </div>
           </Modal>
         </div>
