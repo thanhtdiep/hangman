@@ -32,7 +32,7 @@ const slideVairant = {
 }
 
 const KEYWORD = ['d', 'e', 'v']
-const DEV = true
+const DEV = false
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
