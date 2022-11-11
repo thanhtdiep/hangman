@@ -21,9 +21,11 @@ interface Size {
 const slideVairant = {
   hiddenDown: {
     y: '200%',
+    transition: { ease: [0.455, 0.03, 0.515, 0.955], duration: 1 }
   },
   hiddenUp: {
     y: '-200%',
+    transition: { ease: [0.455, 0.03, 0.515, 0.955], duration: 1 }
   },
   visible: {
     y: 0,
@@ -131,12 +133,12 @@ export default function Home() {
   }, [guesses])
 
   // monitor status
-  React.useEffect(() => {
-    // if (status === 'win' || status === 'lose') {
-    //   // show win message
-    //   setModal(true)
-    // }
-  }, [status])
+  // React.useEffect(() => {
+  // if (status === 'win' || status === 'lose') {
+  //   // show win message
+  //   setModal(true)
+  // }
+  // }, [status])
 
 
   React.useEffect(() => {
@@ -187,7 +189,7 @@ export default function Home() {
           <div className='flex flex-col items-center justify-center mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
             {status === 'win' &&
               <>
-                <h1 className='text-white text-center text-[2rem] mb-4'>Nice Job!</h1>,
+                <h1 className='text-white text-center text-[2rem] mb-4'>Nice Job!</h1>
                 <Lottie
                   animationData={winAnimation}
                   loop={false}
@@ -197,7 +199,7 @@ export default function Home() {
             }
             {status === 'lose' &&
               <>
-                < h1 className='text-white text-center text-[2rem] mb-4'>Nice Try!</h1>,
+                < h1 className='text-white text-center text-[2rem] mb-4'>Nice Try!</h1>
                 <Lottie
                   animationData={loseAnimation}
                   loop={true}
@@ -244,15 +246,17 @@ export default function Home() {
           >
             <button
               onClick={handleNewGame}
-              className='text-white justify-center text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
+              className='text-white text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
               New Word
             </button>
-            {status === 'lose' &&
+            {status === 'lose' ?
               <button
                 onClick={handleTryAgain}
                 className='text-white  text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[6rem]'>
                 Try Again
               </button>
+              : 
+              <div className='w-[6rem]'></div> // force render
             }
           </motion.div>
           <motion.div
