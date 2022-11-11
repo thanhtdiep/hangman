@@ -185,23 +185,26 @@ export default function Home() {
           {/* Win or Lose message */}
           <div className='flex flex-col items-center justify-center mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
             {status === 'win' &&
-              [
+              <>
                 <h1 className='text-white text-center text-[2rem] mb-4'>Nice Job!</h1>,
                 <Lottie
                   animationData={winAnimation}
                   loop={false}
                   className='w-[10rem]'
                 />
-              ]}
+              </>
+            }
             {status === 'lose' &&
-              [
+              <>
                 < h1 className='text-white text-center text-[2rem] mb-4'>Nice Try!</h1>,
                 <Lottie
                   animationData={loseAnimation}
                   loop={true}
                   className='w-[10rem]'
                 />
-              ]}
+              </>
+
+            }
             {/* Lives */}
             {status === '' &&
               <Man lives={lives} winSize={winSize} className='' />
