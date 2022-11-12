@@ -55,7 +55,7 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = true
+const DEV = false
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
