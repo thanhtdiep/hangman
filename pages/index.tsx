@@ -227,7 +227,17 @@ export default function Home() {
         <meta name="description" content="Guess the word!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <header className='mt-[1rem] flex flex-row items-center justify-center'>  
+        {'hangman'.split('').map((w, idx) => (
+          <Key
+            key={idx}
+            logo
+            className='cursor-auto'
+            title={w}
+          />
+        ))}
 
+      </header>
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
         {status === 'win' &&
           <Lottie
