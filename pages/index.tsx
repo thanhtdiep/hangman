@@ -55,7 +55,7 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = false
+const DEV = true
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
@@ -64,7 +64,7 @@ export default function Home() {
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(8)
   const [modal, setModal] = React.useState<boolean>(false)
-  const [hint, setHint] = React.useState<boolean>(false)
+  const [hint, setHint] = React.useState<boolean>(true)
   const [tts, SetTts] = React.useState<SpeechSynthesisUtterance>()
   const [error, setError] = React.useState<string>('')
   Modal.setAppElement('#modals')
@@ -136,7 +136,7 @@ export default function Home() {
           var word = res.word
           const splitWord = res.word.toLowerCase().split('')
           setKeywords({
-            whole: res.word,
+            whole: word,
             split: splitWord
           })
           checkTts(word)
@@ -292,20 +292,20 @@ export default function Home() {
               </>
             }
             {tts && hint &&
-              <div className='flex flex-col items-center mb-[4rem]'>
-                <div className='flex flex-col items-center tracking-wide text-sm sm:text-base mb-4 animate-bounce'>
+              <div className='flex flex-col items-center'>
+                {/* <div className='flex flex-col items-center tracking-wide text-sm sm:text-base mb-4 animate-bounce-stop'>
                   <p
                     className='capitalize border-2 border-white rounded-lg p-2'
                   >hint!
                   </p>
                   <p className='rotate-180 absolute top-9'>^</p>
-                </div>
+                </div> */}
 
                 <motion.button
                   initial='hidden'
                   animate={hint && tts ? 'visible' : 'hidden'}
                   variants={fadeVariant}
-                  className=' border-2 p-2 rounded-full hover:text-black hover:bg-white text-sm'
+                  className=' border-2 p-2 rounded-full hover:text-black hover:bg-white text-sm animate-bounce-stop hover:animate-none'
                   onClick={() => window.speechSynthesis.speak(tts)}
                 >
                   <Speaker />
