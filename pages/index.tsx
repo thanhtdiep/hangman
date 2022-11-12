@@ -55,7 +55,7 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = false
+const DEV = true
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
@@ -204,7 +204,7 @@ export default function Home() {
       top: '50%',
       left: '50%',
       marginRight: winSize.width < 768 ? '-45%' : '',
-      marginBottom: winSize.width < 768 ? '-10%' : '0%',
+      marginBottom: winSize.width < 768 ? '-30%' : '-5%',
       transform: 'translate(-50%, -50%)',
       background: 'black'
     },
@@ -340,7 +340,7 @@ export default function Home() {
           </motion.div>
           {/* ALPHABET */}
           <motion.div
-            className='flex flex-wrap'
+            className='flex flex-wrap items-center justify-center'
             initial='visible'
             animate={!status ? 'visible' : "hiddenDown"}
             variants={slideVairant}
