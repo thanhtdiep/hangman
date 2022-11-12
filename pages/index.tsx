@@ -204,7 +204,7 @@ export default function Home() {
       top: '50%',
       left: '50%',
       marginRight: winSize.width < 768 ? '-45%' : '',
-      marginBottom: winSize.width < 768 ? '-10%' : '0%',
+      marginBottom: winSize.width < 768 ? '-30%' : '0%',
       transform: 'translate(-50%, -50%)',
       background: 'black'
     },
