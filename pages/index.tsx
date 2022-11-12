@@ -55,7 +55,7 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = true
+const DEV = false
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
@@ -64,7 +64,7 @@ export default function Home() {
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(8)
   const [modal, setModal] = React.useState<boolean>(false)
-  const [hint, setHint] = React.useState<boolean>(true)
+  const [hint, setHint] = React.useState<boolean>(DEV)
   const [tts, SetTts] = React.useState<SpeechSynthesisUtterance>()
   const [error, setError] = React.useState<string>('')
   Modal.setAppElement('#modals')
@@ -183,7 +183,6 @@ export default function Home() {
   }
 
   React.useEffect(() => {
-    var word = !DEV ? '' : KEYWORD.whole
     if (!DEV) {
       fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
         if (success) {
@@ -192,14 +191,12 @@ export default function Home() {
             whole: res.word,
             split: splitWord
           })
-          word = res.word
+          checkTts(res.word)
         }
       })
       // show instructions
       setModal(true)
-    }
-
-    checkTts(word)
+    } else checkTts(KEYWORD.whole)
   }, [])
 
   const modalStyles = {
@@ -305,8 +302,11 @@ export default function Home() {
                   initial='hidden'
                   animate={hint && tts ? 'visible' : 'hidden'}
                   variants={fadeVariant}
-                  className=' border-2 p-2 rounded-full hover:text-black hover:bg-white text-sm animate-bounce-stop hover:animate-none'
-                  onClick={() => window.speechSynthesis.speak(tts)}
+                  className=' border-2 p-2 rounded-full hover:text-black hover:bg-white text-sm animate-bounce-stop'
+                  onClick={() => {
+                    window.speechSynthesis.speak(tts)
+
+                  }}
                 >
                   <Speaker />
                 </motion.button>
