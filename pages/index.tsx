@@ -71,29 +71,21 @@ export default function Home() {
 
   const fetchNewWord = async (url: string, cb: any) => {
     setStatus('loading')
-    await axios.get(url, {
-      headers: {
-        'X-Api-Key': process.env.NINJA_APIKEY
-      }
-    })
+    await axios.get(url)
       .then((res) => {
         setStatus('')
         cb(res.data, true)
       })
       .catch((err) => {
-        if (err.response) {
-          console.log(err.response.data);
-          console.log(err.response.status);
-          console.log(err.response.headers);
-          setError("Failed to get new word. Please try again later!")
-        } else if (err.request) {
-          console.log(err.request);
-          setError("Failed to get new word. Please try again later!")
-        } else {
-          console.log('Error', err.message)
+        if (err.message) {
+          console.log(err.message)
           setError(err.message)
         }
-        console.log(err.config)
+        if (err.error) {
+          console.log(err.error)
+        }
+        console.log(err)
+        console.log('Error has occured')
         setStatus('')
         cb('', false)
       })
@@ -131,7 +123,7 @@ export default function Home() {
 
   const handleNewGame = () => {
     if (!DEV) {
-      fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+      fetchNewWord(GLOBALS.WORD_ROUTE, (res: any, success: boolean) => {
         if (success) {
           var word = res.word
           const splitWord = res.word.toLowerCase().split('')
@@ -184,7 +176,7 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!DEV) {
-      fetchNewWord(GLOBALS.BASE_URL, (res: any, success: boolean) => {
+      fetchNewWord(GLOBALS.WORD_ROUTE, (res: any, success: boolean) => {
         if (success) {
           const splitWord = res.word.toLowerCase().split('')
           setKeywords({
@@ -227,7 +219,7 @@ export default function Home() {
         <meta name="description" content="Guess the word!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className='mt-[1rem] flex flex-row items-center justify-center'>  
+      <header className='mt-[1rem] flex flex-row items-center justify-center'>
         {'hangman'.split('').map((w, idx) => (
           <Key
             key={idx}
@@ -352,7 +344,7 @@ export default function Home() {
           <motion.div
             className='flex flex-wrap items-center justify-center'
             initial='visible'
-            animate={!status ? 'visible' : "hiddenDown"}
+            animate={!status && !error ? 'visible' : "hiddenDown"}
             variants={slideVairant}
           >
             {GLOBALS.ALPHABET.map((key, idx) => {
