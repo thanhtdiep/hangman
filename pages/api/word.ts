@@ -12,9 +12,6 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   // get request payload
-  const body = req.body;
-  console.log(body)
-  // 
 
   // fetch from word ninja api
   await axios.get(GLOBALS.BASE_URL, {
