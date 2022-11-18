@@ -3,7 +3,8 @@ import React, { FC } from 'react'
 interface Props {
     lives: number,
     winSize: Size,
-    className?: string
+    className?: string,
+    small?: boolean
 }
 
 interface Size {
@@ -11,9 +12,9 @@ interface Size {
     height: number
 }
 
-const Man: FC<Props> = ({ winSize, lives, className }) => {
+const Man: FC<Props> = ({ winSize, lives, className, small }) => {
     const BREAKPOINT = 1028;
-    const SCALE = winSize.width < BREAKPOINT ? .3 : .5
+    const SCALE = !small ? winSize.width < BREAKPOINT ? .3 : .5 : winSize.width < BREAKPOINT ? .15 : .3
     //  resize when on phone
     return (
         <svg className={` ${className}`}

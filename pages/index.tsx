@@ -6,6 +6,7 @@ import axios from 'axios';
 import React, { FC } from 'react';
 import Key from '../components/Key';
 import Man from '../components/Man';
+import Player from '../components/Player';
 import Modal from 'react-modal';
 import Lottie from "lottie-react";
 import { motion } from 'framer-motion';
@@ -15,6 +16,7 @@ import { v4 as uuid } from 'uuid';
 import winAnimation from '../public/lottie/hangman-win.json';
 import loseAnimation from '../public/lottie/hangman-lose.json';
 import confettiAnimation from '../public/lottie/confetti.json';
+import { start } from 'repl';
 
 let socket: any;
 
@@ -22,7 +24,7 @@ interface Size {
   width: number,
   height: number
 }
-interface Player {
+interface PlayerType {
   id: number,
   name: string,
   lives: number,
@@ -30,9 +32,10 @@ interface Player {
 }
 
 interface Lobby {
+  host?: boolean,
   client_id?: string,
   code?: string,
-  players?: Player[]
+  players?: PlayerType[]
 }
 interface Keyword {
   whole: string,
@@ -151,6 +154,7 @@ export default function Home() {
     setLives(prev => (prev - 1))
   }
 
+  // FOR SINGLEPLAYER
   const checkTts = (word: string) => {
     // Check if TTS is supported
     if ("speechSynthesis" in window) {
@@ -169,6 +173,7 @@ export default function Home() {
     }
   }
 
+  // FOR SINGLEPLAYER
   const handleNewGame = () => {
     if (!DEV) {
       fetchNewWord(GLOBALS.WORD_ROUTE, (res: any, success: boolean) => {
@@ -187,10 +192,15 @@ export default function Home() {
       setKeywords(BLANK_KEYWORD)
       setKeywords(KEYWORD)
     }
-    setHint(false)
-    setGuesses([])
-    setLives(8)
+
+    if (mode == 'single') {
+      setHint(false)
+      setGuesses([])
+      setLives(8)
+    }
   }
+
+  // FOR SINGLEPLAYER
   const handleTryAgain = () => {
     //  show hint
     setStatus('')
@@ -211,7 +221,12 @@ export default function Home() {
         name: name,
         code: lobby?.code
       })
-      setMode('multiple')
+      // update current client id
+      setLobby(prev => ({
+        ...prev,
+        client_id: socket.id
+      }))
+      setMode('lobby')
     }
   }
 
@@ -221,6 +236,7 @@ export default function Home() {
     const small_id = unique_id.slice(0, 8)
     // TODO: Add try catch
     // join lobby
+    console.log(name)
     socket.emit('create',
       {
         name: name,
@@ -234,19 +250,23 @@ export default function Home() {
     // keep track of playerID
     // keep track of lobby
     // render lobby
-    setMode('multiple')
+    setMode('lobby')
 
   }
   const handleLeaveLobby = async () => {
-    // TODO: Add try catch
     socket.emit('leave', lobby.code)
-    console.log(socket)
-    console.log('leave')
-    setMode('intro')
     //  clear playerID
     //  clear lobby
-    // render lobby
 
+    setMode('intro')
+  }
+
+  const handleStartMultiple = () => {
+    // start game for all cilent
+    const data = {
+      code: lobby.code
+    }
+    socket.emit('start', data)
   }
 
   const socketInitializer = async () => {
@@ -254,26 +274,52 @@ export default function Home() {
     socket = io()
     // Whenever player join lobby
     socket.on('player-join', (msg: any) => {
-      console.log(msg)
-      console.log(socket.id)
       setLobby(prev => ({
         ...prev,
         code: msg.code,
-        players: msg.player
+        players: msg.players
       }))
     })
 
     // Whenever player leave
     socket.on('player-leave', (msg: any) => {
-      console.log(msg)
-      // clear lobby
+      // clear lobby 
       setLobby(prev => ({
         ...prev,
-        code: '',
-        players: []
+        players: msg.players
       }))
     })
 
+
+    // host channel
+    socket.on('update-host', (msg: any) => {
+      // clear lobby
+      setLobby(prev => ({
+        ...prev,
+        host: msg.is_host,
+        code: msg.code,
+        players: msg.players
+      }))
+    })
+
+    // start game channel
+    socket.on('start-game', (msg: any) => {
+      console.log(msg)
+      // render keyword
+      setKeywords(msg.word)
+      // render status
+      setStatus('multiple')
+    })
+
+    // start game channel
+    socket.on('update-game', (msg: any) => {
+      
+    })
+
+    // error channel
+    socket.on('update-host', (msg: any) => {
+      console.log(msg)
+    })
   }
 
   // monitor guesses
@@ -351,7 +397,7 @@ export default function Home() {
         ))}
 
       </header>
-      <main className='flex flex-1 flex-col min-h-screen justify-center items-center '>
+      <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
         {/* INTRO */}
         {mode === 'intro' &&
           <>
@@ -385,21 +431,33 @@ export default function Home() {
             </form>
           </>
         }
-        {/* MULTIPLAYER */}
-        {mode === 'multiple' &&
-          <div className='flex flex-1 flex-col'>
+        {/* LOBBY */}
+        {mode === 'lobby' &&
+          <div className='flex flex-1 flex-col items-center'>
             {/* Lobby Code */}
-            <div className='flex-1'>
+            {/* TODO: copy on click and hidden/reveal feature */}
+            <div className='w-[10rem]'>
               {lobby?.code && <div className=' text-black bg-white border-2 p-2 rounded-lg text-center mt-2'>
                 <h2>Lobby Code</h2>
                 <p>{lobby.code}</p>
               </div>}
             </div>
-            {/* Show players */}
-
+            {/* Show players in lobby */}
+            {lobby.players &&
+              <div className='flex flex-1 mt-2'>
+                {lobby.players.map((p, idx) => {
+                  if (p.id == socket.id) return;
+                  return (
+                    <Player key={idx} player={p} winSize={winSize} className='mr-2' />
+                  )
+                })}
+              </div>
+            }
             {/* Start & leave lobby*/}
             <div className='flex-1 flex flex-col'>
-              <Button title='start' className='w-[10rem] uppercase mb-2' onClick={() => console.log('start lobby')} />
+              {lobby.host &&
+                <Button title='start' className='w-[10rem] uppercase mb-2' onClick={handleStartMultiple} />
+              }
               <Button title='leave' className='w-[10rem] uppercase mb-2' onClick={handleLeaveLobby} />
             </div>
             {/* <p className='text-white'>{test}</p> */}
@@ -439,7 +497,7 @@ export default function Home() {
               }
               {/* Lives */}
               {status === '' &&
-                <Man lives={lives} winSize={winSize} className='' />
+                <Man lives={lives} winSize={winSize} />
               }
 
             </div>
