@@ -1,14 +1,14 @@
 export default (io: any, socket: any) => {
     // store player array
     const createLobby = async (data: any) => {
-        socket.nickname = data.name;
-        socket.is_host = true;
-        console.log(socket.nickname)
+        // inialise player stats
         socket.join(data.code)
-        console.log('[socket]', 'join room :', data.code)
+        socket.nickname = data.name;
+        socket.room = data.code;
+        socket.is_host = true;
         const sockets = await io.in(data.code).fetchSockets();
         // config players
-        var newList: any = [];
+        var newPlayers: any = [];
         sockets.map((s: any) => {
             const newPlayer = {
                 id: s.id,
@@ -17,25 +17,27 @@ export default (io: any, socket: any) => {
                 lives: 8,
                 guesses: [],
             }
-            newList.push(newPlayer)
+            newPlayers.push(newPlayer)
         })
-        console.log(socket.id)
+        socket.players = newPlayers;
+        // join lobby
+        console.log('[socket]', 'join room :', data.code)
         // update player list to host
         io.to(socket.id).emit('update-host', {
             is_host: true,
             code: data.code,
-            players: newList
+            players: newPlayers
         });
     }
 
     const joinLobby = async (data: any) => {
-        socket.nickname = data.name;
-        socket.is_host = false;
         socket.join(data.code)
-        console.log('[socket]', 'join room :', data.code)
+        socket.nickname = data.name;
+        socket.room = data.code;
+        socket.is_host = false;
         const sockets = await io.in(data.code).fetchSockets();
         // config players
-        var newList: any = [];
+        var newPlayers: any = [];
         sockets.map((s: any) => {
             const newPlayer = {
                 id: s.id,
@@ -44,13 +46,14 @@ export default (io: any, socket: any) => {
                 lives: 8,
                 guesses: [],
             }
-            newList.push(newPlayer)
+            newPlayers.push(newPlayer)
         })
-        console.log(newList)
+        socket.players = newPlayers;
+        console.log('[socket]', 'join room :', data.code)
         // update player list
         io.in(data.code).emit('player-join', {
             code: data.code,
-            players: newList
+            players: newPlayers
         });
     }
 

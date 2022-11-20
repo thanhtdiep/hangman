@@ -5,6 +5,7 @@ import type { Server as HTTPServer } from 'http'
 import type { Socket as NetSocket } from 'net'
 
 import lobbyHandler from "../../helpers/sockets/lobbyHandler";
+import gameHandler from "../../helpers/sockets/gameHandler";
 type Data = {
     [x: string]: any
 }
@@ -38,6 +39,7 @@ export default async function handler(
 
     const onConnection = (socket: any) => {
         lobbyHandler(io, socket)
+        gameHandler(io, socket)
     }
     
     // Define actions inside

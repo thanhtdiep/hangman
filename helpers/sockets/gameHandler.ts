@@ -1,16 +1,24 @@
 import axios from 'axios';
 import GLOBALS from '../../global.json';
 
+interface PlayerType {
+    id: number,
+    name: string,
+    lives: number,
+    guesses: string[]
+}
+
 const fetchWord = async () => {
     // fetch from word ninja api
-    await axios.get(GLOBALS.BASE_URL, {
+    const result = await axios.get(GLOBALS.BASE_URL, {
         headers: {
             'X-Api-Key': process.env.NINJA_APIKEY
         }
     })
         .then((response) => {
             const word = response.data.word
-            return ({ word })
+            console.log(word)
+            return word
         })
         .catch((err) => {
             var data = {
@@ -36,23 +44,50 @@ const fetchWord = async () => {
             console.log(err.config)
             return (null)
         })
+    return result
 }
 
 export default (io: any, socket: any) => {
     // update game progress
-    const updateGame = (room: any) => {
+    const updateGame = (msg: any) => {
         console.log('Update lobby')
+        console.log(msg)
         // emit update-game
         // handle guesses, lives and winner update
+        if (msg.type == 'progress') {
+            // send the updated guesss and lives
+            msg.is_host = socket.is_host;
+            // client loop through player on their state and update
+            socket.in(msg.code).emit('update-game', msg);
+            // live check
+            const players = msg.players;
+            const stillPlaying = players.find((p: PlayerType) => {
+                return p.lives > 0
+            })
+            if (!stillPlaying) {
+                msg.type = 'lose';
+                msg.description = "No one found the hidden word. Nice try tho!"
+                io.in(msg.code).emit('update-game', msg);
+            }
+        }
+        // we found a winner
+        if (msg.type == 'winner') {
+            // send winner info
+            // render winner screen
+            io.in(socket.room).emit('update-game', msg);
+        }
     }
 
     // start game
     // update game progress
     const startGame = async (msg: any) => {
         // chekc if sender is host
+        console.log('')
         if (socket.is_host && msg.code) {
+            console.log('Game start!')
+            let newWord = '';
             // fetch word
-            const newWord = await fetchWord()
+            await fetchWord().then((res) => newWord = res);
             // send word to all clients
             io.in(msg.code).emit('start-game', newWord)
         }
@@ -60,7 +95,7 @@ export default (io: any, socket: any) => {
 
     // update error channel
     // update game progress
-    const errorGame = (room: any) => {
+    const errorGame = (msg: any) => {
         console.log('Update lobby')
         // emit update-game
         // handle guesses, lives and winner update

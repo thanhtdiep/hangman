@@ -16,7 +16,6 @@ import { v4 as uuid } from 'uuid';
 import winAnimation from '../public/lottie/hangman-win.json';
 import loseAnimation from '../public/lottie/hangman-lose.json';
 import confettiAnimation from '../public/lottie/confetti.json';
-import { start } from 'repl';
 
 let socket: any;
 
@@ -28,7 +27,8 @@ interface PlayerType {
   id: number,
   name: string,
   lives: number,
-  guesses: string[]
+  guesses: string[],
+  [x: string]: any
 }
 
 interface Lobby {
@@ -36,6 +36,10 @@ interface Lobby {
   client_id?: string,
   code?: string,
   players?: PlayerType[]
+}
+interface PostGame {
+  description?: string,
+  winner?: PlayerType
 }
 interface Keyword {
   whole: string,
@@ -46,7 +50,6 @@ interface ButtonProps {
   title: string,
   className: string,
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
-
 }
 const slideVairant = {
   hiddenDown: {
@@ -92,6 +95,7 @@ export default function Home() {
   const [lobby, setLobby] = React.useState<Lobby>({
     code: ''
   })
+  const [postGame, setPostGame] = React.useState<PostGame>()
   const [mode, setMode] = React.useState<string>('intro')
   const [guesses, setGuesses] = React.useState<string[]>([])
   const [lives, setLives] = React.useState<number>(8)
@@ -140,18 +144,30 @@ export default function Home() {
     })
     // don't have to worry about this cause in live, it will be overlap when fetch
     if (count === keywords.length && keywords.length > 0) {
+      // emit declare winner for multiple
+      if (mode === 'multiple') {
+        const data = {
+          type: 'winner',
+          name: name,
+          lives: lives,
+          guesses: guesses
+        }
+        socket.emit('update', data)
+      }
+      // render victory screen
       setStatus('win')
     }
   }
 
   const checkLives = (result: boolean, lives: number) => {
-    if (result) return;
+    if (result) return lives;
     const newLives = lives - 1
     if (newLives <= 0) {
       setStatus('lose')
       setHint(true)
     }
     setLives(prev => (prev - 1))
+    return newLives
   }
 
   // FOR SINGLEPLAYER
@@ -170,6 +186,27 @@ export default function Home() {
       SetTts(utterance)
     } else {
       console.log('Text-to-speech not supported.')
+    }
+  }
+
+  const handleCheck = (splitWord: string[], key: string, status: string, lives: number) => {
+    if (status == 'lose') return;
+    const isCorrect = checkGuess(splitWord, key)
+    const newLives = checkLives(isCorrect, lives)
+    const newGuesses = [...guesses, key]
+    setGuesses(newGuesses)
+    // send guess & lives to socket
+    if (mode == 'multiple') {
+      console.log(newLives)
+      const data = {
+        type: 'progress',
+        id: lobby.client_id,
+        code: lobby.code,
+        lives: newLives,
+        guesses: newGuesses,
+        players: lobby.players
+      }
+      socket.emit('update', data)
     }
   }
 
@@ -216,6 +253,7 @@ export default function Home() {
   }
 
   const handleJoin = () => {
+    if (!name) return;
     if (lobby?.code) {
       socket.emit('join', {
         name: name,
@@ -231,12 +269,10 @@ export default function Home() {
   }
 
   const handleCreateLobby = async () => {
+    if (!name) return;
     // generate room code
     const unique_id = uuid();
     const small_id = unique_id.slice(0, 8)
-    // TODO: Add try catch
-    // join lobby
-    console.log(name)
     socket.emit('create',
       {
         name: name,
@@ -251,7 +287,6 @@ export default function Home() {
     // keep track of lobby
     // render lobby
     setMode('lobby')
-
   }
   const handleLeaveLobby = async () => {
     socket.emit('leave', lobby.code)
@@ -293,7 +328,6 @@ export default function Home() {
 
     // host channel
     socket.on('update-host', (msg: any) => {
-      // clear lobby
       setLobby(prev => ({
         ...prev,
         host: msg.is_host,
@@ -306,18 +340,63 @@ export default function Home() {
     socket.on('start-game', (msg: any) => {
       console.log(msg)
       // render keyword
-      setKeywords(msg.word)
+      const splitWord = msg.toLowerCase().split('')
+      setKeywords({
+        whole: msg.word,
+        split: splitWord
+      })
+      checkTts('')
       // render status
-      setStatus('multiple')
+      setMode('multiple')
     })
 
-    // start game channel
-    socket.on('update-game', (msg: any) => {
-      
+    // update game channel
+    socket.on('update-game', async (msg: any) => {
+      // update player step
+      console.log('Other player is making a move')
+      console.log(msg)
+
+      if (msg.type == 'progress') {
+        setLobby((prevLobby) => {
+          let newPlayers: PlayerType[] = [];
+          prevLobby.players?.map((p: PlayerType) => {
+            if (p.id !== msg.id) {
+              newPlayers.push(p);
+              return;
+            }
+            const data = {
+              ...p,
+              lives: msg.lives,
+              guesses: msg.guesses,
+            }
+            newPlayers.push(data)
+          })
+          return { ...prevLobby, players: newPlayers }
+        })
+      }
+
+      // found a winner 
+      if (msg.type == 'winner') {
+        // show loser screen
+        // reveal the word and winner
+        // show back to lobby or leave lobby
+        setPostGame({
+          winner: msg
+        })
+        setStatus('lose')
+
+      }
+      // no one win
+      if (msg.type == 'lose') {
+        setPostGame({
+          description: msg.description
+        })
+        setStatus('lose')
+      }
     })
 
     // error channel
-    socket.on('update-host', (msg: any) => {
+    socket.on('update-error', (msg: any) => {
       console.log(msg)
     })
   }
@@ -328,6 +407,11 @@ export default function Home() {
     // TODO: IMPROVEMENT - Move this code directly to where setGuesses is performed
     checkResult(guesses, keywords.split)
   }, [guesses])
+
+  // monitor guesses
+  React.useEffect(() => {
+    console.log(lobby.players)
+  }, [lobby.players])
 
   React.useEffect(() => {
     if (!DEV) {
@@ -386,6 +470,7 @@ export default function Home() {
         <meta name="description" content="Guess the word!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      {/* LOGO */}
       <header className='mt-[1rem] flex flex-row items-center justify-center'>
         {'hangman'.split('').map((w, idx) => (
           <Key
@@ -398,6 +483,23 @@ export default function Home() {
 
       </header>
       <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
+        {/* PLAYER LIST */}
+        {mode === 'lobby' || mode === 'multiple' ?
+          <div className='flex flex-1 flex-col items-center '>
+            {/* Show players in lobby */}
+            {lobby.players &&
+              <div className='flex flex-1 mt-2'>
+                {lobby.players.map((p, idx) => {
+                  if (p.id == socket.id) return;
+                  return (
+                    <Player key={idx} player={p} winSize={winSize} className='mr-2' />
+                  )
+                })}
+              </div>
+            }
+          </div>
+          : null
+        }
         {/* INTRO */}
         {mode === 'intro' &&
           <>
@@ -437,22 +539,11 @@ export default function Home() {
             {/* Lobby Code */}
             {/* TODO: copy on click and hidden/reveal feature */}
             <div className='w-[10rem]'>
-              {lobby?.code && <div className=' text-black bg-white border-2 p-2 rounded-lg text-center mt-2'>
+              {lobby?.code && <div className=' text-black bg-white border-2 p-2 rounded-lg text-center mb-2'>
                 <h2>Lobby Code</h2>
                 <p>{lobby.code}</p>
               </div>}
             </div>
-            {/* Show players in lobby */}
-            {lobby.players &&
-              <div className='flex flex-1 mt-2'>
-                {lobby.players.map((p, idx) => {
-                  if (p.id == socket.id) return;
-                  return (
-                    <Player key={idx} player={p} winSize={winSize} className='mr-2' />
-                  )
-                })}
-              </div>
-            }
             {/* Start & leave lobby*/}
             <div className='flex-1 flex flex-col'>
               {lobby.host &&
@@ -464,7 +555,7 @@ export default function Home() {
           </div>
         }
         {/* RENDER - START | CREATE GAME | JOIN GAME | NAME INPUT - SINGLE MODE */}
-        {mode === 'single' && <>
+        {mode === 'single' || mode === 'multiple' ? <>
           {status === 'win' &&
             <Lottie
               animationData={confettiAnimation}
@@ -524,7 +615,7 @@ export default function Home() {
                   ))}
                 </>
               }
-              {tts && hint &&
+              {tts && hint && mode !== 'multiple' &&
                 <div className='flex flex-col items-center'>
                   {/* <div className='flex flex-col items-center tracking-wide text-sm sm:text-base mb-4 animate-bounce-stop'>
                   <p
@@ -541,7 +632,6 @@ export default function Home() {
                     className=' border-2 p-2 rounded-full hover:text-black hover:bg-white text-sm animate-bounce-stop'
                     onClick={() => {
                       window.speechSynthesis.speak(tts)
-
                     }}
                   >
                     <Speaker />
@@ -559,20 +649,42 @@ export default function Home() {
               animate={status === 'win' || status === 'lose' ? 'visible' : "hiddenUp"}
               variants={slideVairant}
             >
-              <button
-                onClick={handleNewGame}
-                className='text-white text-center p-2 mb-2 sm:mb-0 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[10rem]'>
-                New Word
-              </button>
-              {status === 'lose' ?
-                <button
-                  onClick={handleTryAgain}
-                  className='text-white text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[10rem]'>
-                  Try Again
-                </button>
-                :
-                <div className='w-[6rem]'></div> // force render empty div
+              {mode == 'single' &&
+                <>
+                  <button
+                    onClick={handleNewGame}
+                    className='text-white text-center p-2 mb-2 sm:mb-0 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[10rem]'>
+                    New Word
+                  </button>
+                  {status === 'lose' ?
+                    <button
+                      onClick={handleTryAgain}
+                      className='text-white text-center p-2 rounded-lg border-2 border-white hover:bg-white hover:text-black w-[10rem]'>
+                      Try Again
+                    </button>
+                    :
+                    <div className='w-[10rem]'></div> // force render empty div
+                  }
+                </>
               }
+              {/* MULTIPLE */}
+              {mode == 'multiple' && postGame &&
+                <>
+                  {postGame?.winner ?
+                    <div className=''>
+                      <h2>{postGame.winner.name} has found the word </h2>
+                      <p>
+                        with {postGame.winner.guesses.length} tries!
+                      </p>
+                    </div>
+                    :
+                    <div className=''>
+                      {postGame?.description}
+                    </div>
+                  }
+                </>
+              }
+
             </motion.div>
             {/* ALPHABET */}
             <motion.div
@@ -589,10 +701,7 @@ export default function Home() {
                     className={` ${status == 'lose' && 'cursor-default'}`}
                     title={key}
                     onClick={() => {
-                      if (status == 'lose') return;
-                      const isCorrect = checkGuess(keywords.split, key)
-                      checkLives(isCorrect, lives)
-                      setGuesses(prev => ([...prev, key]))
+                      handleCheck(keywords.split, key, status, lives)
                     }} />
                 )
               })}
@@ -603,7 +712,9 @@ export default function Home() {
               Error: {error}
             </div>
           }
-        </>}
+        </>
+          : null
+        }
         {/* This will change status from intro to single OR multiple OR name input */}
 
         <div id='modals'>
