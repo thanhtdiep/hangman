@@ -313,7 +313,7 @@ export default function Home() {
   const handleLeaveLobby = async () => {
     socket.emit('leave', lobby.code)
     // clear states
-    setLobby({code: ''})
+    setLobby({ code: '' })
     setStatus('')
     setGuesses([])
     setLives(8)
@@ -425,7 +425,7 @@ export default function Home() {
     })
 
     // receive host pass channel
-    socket.on('pass-host', (msg:any) => {
+    socket.on('pass-host', (msg: any) => {
       setLobby(prev => ({
         ...prev,
         host: msg.is_host
@@ -517,14 +517,17 @@ export default function Home() {
       <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' && 'justify-center'}`}>
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
-          <div className='flex flex-col items-center mt-[1rem] h-[7rem] sm:h-[15rem]'>
+          <div className='flex flex-row mt-[1rem] h-[10rem] sm:h-[15rem]'>
             {/* Show players in lobby */}
             {lobby.players &&
-              <div className='flex flex-1 mt-2'>
+              <div className='flex flex-1 mt-2 w-[99vw] overflow-scroll'>
+                {/* implement grid  */}
                 {lobby.players.map((p, idx) => {
                   if (p.id == socket.id) return;
                   return (
-                    <Player key={idx} player={p} winSize={winSize} className='mr-2' />
+                    <>
+                      <Player key={idx} player={p} winSize={winSize} className='mr-2' />
+                    </>
                   )
                 })}
               </div>
