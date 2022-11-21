@@ -64,6 +64,16 @@ export default (io: any, socket: any) => {
         console.log('User left lobby')
         // update remaing player for other client
         const sockets = await io.in(room).fetchSockets();
+        // check if player is host
+        if (socket.is_host && sockets.length > 0) {
+            socket.is_host = false
+            sockets[0].is_host = true
+            // pass host to another user
+            console.log('pass host')
+            io.to(sockets[0].id).emit('pass-host', {
+                is_host: sockets[0].is_host
+            });
+        }
         // config players
         var newList: any = [];
         sockets.map((s: any) => {

@@ -366,7 +366,6 @@ export default function Home() {
       }))
     })
 
-
     // host channel
     socket.on('update-host', (msg: any) => {
       setLobby(prev => ({
@@ -423,6 +422,14 @@ export default function Home() {
         })
         setStatus('lose')
       }
+    })
+
+    // receive host pass channel
+    socket.on('pass-host', (msg:any) => {
+      setLobby(prev => ({
+        ...prev,
+        host: msg.is_host
+      }))
     })
 
     // error channel
