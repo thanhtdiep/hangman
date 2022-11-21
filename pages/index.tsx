@@ -517,7 +517,7 @@ export default function Home() {
       <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' && 'justify-center'}`}>
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
-          <div className='flex flex-col items-center h-[7rem] sm:h-[15rem]'>
+          <div className='flex flex-col items-center mt-[1rem] h-[7rem] sm:h-[15rem]'>
             {/* Show players in lobby */}
             {lobby.players &&
               <div className='flex flex-1 mt-2'>

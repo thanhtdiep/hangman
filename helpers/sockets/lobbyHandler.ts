@@ -69,7 +69,6 @@ export default (io: any, socket: any) => {
             socket.is_host = false
             sockets[0].is_host = true
             // pass host to another user
-            console.log('pass host')
             io.to(sockets[0].id).emit('pass-host', {
                 is_host: sockets[0].is_host
             });

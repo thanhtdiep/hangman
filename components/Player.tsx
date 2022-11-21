@@ -1,5 +1,7 @@
 import React, { FC } from 'react'
 import Man from './Man'
+import Lottie from "lottie-react";
+import crownAnimation from '../public/lottie/crown.json';
 interface Props {
     player: Player,
     winSize: Size,
@@ -13,6 +15,7 @@ interface Player {
     id: number,
     name: string,
     lives: number,
+    is_host?: boolean,
     guesses: string[]
 }
 
@@ -20,7 +23,14 @@ const Player: FC<Props> = ({ winSize, player, className }) => {
     //  resize when on phone
     return (
         <div className={`${className} w-[10rem] h-[5rem] p-2 flex flex-row border-2 border-white rounded-lg justify-center items-center`}>
-            <Man className='w-[4rem]' winSize={winSize} small lives={player.lives} />
+            {player.is_host &&
+                <Lottie
+                    animationData={crownAnimation}
+                    loop={true}
+                    className='absolute w-[2rem] -mt-[6rem] '
+                />
+            }
+            <Man className='w-[4rem] ' winSize={winSize} small lives={player.lives} />
             <div className='flex flex-col'>
                 <h2 className='font-bold'>{player.name}</h2>
                 <p>Guesses: {player.guesses.length}</p>
