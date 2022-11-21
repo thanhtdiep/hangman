@@ -74,7 +74,12 @@ export default (io: any, socket: any) => {
         if (msg.type == 'winner') {
             // send winner info
             // render winner screen
-            io.in(socket.room).emit('update-game', msg);
+            socket.in(socket.room).emit('update-game', msg);
+        }
+        
+        // new gamer
+        if (msg.type == 'new') {
+
         }
     }
 
@@ -82,7 +87,6 @@ export default (io: any, socket: any) => {
     // update game progress
     const startGame = async (msg: any) => {
         // chekc if sender is host
-        console.log('')
         if (socket.is_host && msg.code) {
             console.log('Game start!')
             let newWord = '';

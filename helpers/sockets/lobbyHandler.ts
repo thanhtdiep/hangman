@@ -31,10 +31,12 @@ export default (io: any, socket: any) => {
     }
 
     const joinLobby = async (data: any) => {
-        socket.join(data.code)
-        socket.nickname = data.name;
-        socket.room = data.code;
-        socket.is_host = false;
+        if (!data.return) {
+            socket.join(data.code)
+            socket.is_host = false;
+            socket.nickname = data.name;
+            socket.room = data.code;
+        }
         const sockets = await io.in(data.code).fetchSockets();
         // config players
         var newPlayers: any = [];

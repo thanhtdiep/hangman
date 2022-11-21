@@ -78,14 +78,14 @@ const fadeVariant = {
 }
 
 const KEYWORD = {
-  whole: 'dev',
-  split: ['d', 'e', 'v']
+  whole: 'deeeeeeeeeeeêev',
+  split: ['d', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'v']
 }
 const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = false
+const DEV = true
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
@@ -189,22 +189,44 @@ export default function Home() {
     }
   }
 
+  const updatePlayerLists = (playersList: PlayerType[], msg: any) => {
+    let newPlayers: PlayerType[] = [];
+    playersList.map((p: PlayerType) => {
+      if (p.id !== msg.id) {
+        newPlayers.push(p);
+        return;
+      }
+      const data = {
+        ...p,
+        lives: msg.lives,
+        guesses: msg.guesses,
+      }
+      newPlayers.push(data)
+    })
+    return newPlayers
+  }
+
   const handleCheck = (splitWord: string[], key: string, status: string, lives: number) => {
     if (status == 'lose') return;
     const isCorrect = checkGuess(splitWord, key)
     const newLives = checkLives(isCorrect, lives)
     const newGuesses = [...guesses, key]
     setGuesses(newGuesses)
-    // send guess & lives to socket
-    if (mode == 'multiple') {
-      console.log(newLives)
+    // update self stats in lobby.player list
+    if (lobby.players && mode == 'multiple') {
+      const newPlayers = updatePlayerLists(lobby.players, {
+        id: lobby.client_id,
+        lives: newLives,
+        guesses: guesses
+      })
+      // send guess & lives to socket
       const data = {
         type: 'progress',
         id: lobby.client_id,
         code: lobby.code,
         lives: newLives,
         guesses: newGuesses,
-        players: lobby.players
+        players: newPlayers
       }
       socket.emit('update', data)
     }
@@ -290,10 +312,29 @@ export default function Home() {
   }
   const handleLeaveLobby = async () => {
     socket.emit('leave', lobby.code)
-    //  clear playerID
-    //  clear lobby
-
+    // clear states
+    setLobby({code: ''})
+    setStatus('')
+    setGuesses([])
+    setLives(8)
+    setPostGame({})
+    // render intro screen
     setMode('intro')
+  }
+
+  const handleReturnLobby = async () => {
+    // return to lobby
+    socket.emit('join', {
+      return: true,
+      code: lobby?.code
+    })
+    // clear game state
+    setStatus('')
+    setGuesses([])
+    setLives(8)
+    setPostGame({})
+    // render lobby
+    setMode('lobby')
   }
 
   const handleStartMultiple = () => {
@@ -357,20 +398,9 @@ export default function Home() {
       console.log(msg)
 
       if (msg.type == 'progress') {
-        setLobby((prevLobby) => {
-          let newPlayers: PlayerType[] = [];
-          prevLobby.players?.map((p: PlayerType) => {
-            if (p.id !== msg.id) {
-              newPlayers.push(p);
-              return;
-            }
-            const data = {
-              ...p,
-              lives: msg.lives,
-              guesses: msg.guesses,
-            }
-            newPlayers.push(data)
-          })
+        setLobby((prevLobby: Lobby) => {
+          if (!prevLobby.players) return prevLobby;
+          const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
           return { ...prevLobby, players: newPlayers }
         })
       }
@@ -407,11 +437,6 @@ export default function Home() {
     // TODO: IMPROVEMENT - Move this code directly to where setGuesses is performed
     checkResult(guesses, keywords.split)
   }, [guesses])
-
-  // monitor guesses
-  React.useEffect(() => {
-    console.log(lobby.players)
-  }, [lobby.players])
 
   React.useEffect(() => {
     if (!DEV) {
@@ -482,10 +507,10 @@ export default function Home() {
         ))}
 
       </header>
-      <main className='flex flex-1 flex-col min-h-screen justify-center items-center'>
+      <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' && 'justify-center'}`}>
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
-          <div className='flex flex-1 flex-col items-center '>
+          <div className='flex flex-col items-center h-[7rem] sm:h-[15rem]'>
             {/* Show players in lobby */}
             {lobby.players &&
               <div className='flex flex-1 mt-2'>
@@ -593,7 +618,7 @@ export default function Home() {
 
             </div>
             {/* Keyword */}
-            <div className='flex flex-row lowercase text-white text-[2rem] sm:text-[4rem] leading-5 tracking-[1rem] select-none'>
+            <div className={`flex flex-row lowercase text-white sm:text-[4rem] text-[2rem] leading-5 tracking-[1rem] select-none`}>
               {status !== 'loading' ? keywords.split?.map((keyword, idx) => {
                 const isGuessed = checkGuess(guesses, keyword)
                 return (
@@ -671,6 +696,7 @@ export default function Home() {
               {mode == 'multiple' && postGame &&
                 <>
                   {postGame?.winner ?
+                    // found a winner
                     <div className=''>
                       <h2>{postGame.winner.name} has found the word </h2>
                       <p>
@@ -678,10 +704,15 @@ export default function Home() {
                       </p>
                     </div>
                     :
+                    // everyone ran out of lives
                     <div className=''>
                       {postGame?.description}
                     </div>
                   }
+                  {/* Return to lobby */}
+                  <Button title='return to lobby' className='w-[10rem] uppercase mb-2' onClick={handleReturnLobby} />
+                  {/* Quit */}
+                  <Button title='quit' className='w-[10rem] uppercase mb-2' onClick={handleLeaveLobby} />
                 </>
               }
 
