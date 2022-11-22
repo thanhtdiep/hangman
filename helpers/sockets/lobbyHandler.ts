@@ -5,6 +5,8 @@ export default (io: any, socket: any) => {
         socket.join(data.code)
         socket.nickname = data.name;
         socket.room = data.code;
+        socket.status = '';
+        socket.ready = false;
         socket.is_host = true;
         const sockets = await io.in(data.code).fetchSockets();
         // config players
@@ -14,6 +16,8 @@ export default (io: any, socket: any) => {
                 id: s.id,
                 name: s.nickname,
                 is_host: s.is_host,
+                ready: s.ready,
+                status: '',
                 lives: 8,
                 guesses: [],
             }
@@ -24,7 +28,7 @@ export default (io: any, socket: any) => {
         console.log('[socket]', 'join room :', data.code)
         // update player list to host
         io.to(socket.id).emit('update-host', {
-            is_host: true,
+            is_host: socket.is_host,
             code: data.code,
             players: newPlayers
         });
@@ -34,6 +38,8 @@ export default (io: any, socket: any) => {
         if (!data.return) {
             socket.join(data.code)
             socket.is_host = false;
+            socket.status = '';
+            socket.ready = false;
             socket.nickname = data.name;
             socket.room = data.code;
         }
@@ -45,6 +51,8 @@ export default (io: any, socket: any) => {
                 id: s.id,
                 name: s.nickname,
                 is_host: s.is_host,
+                ready: s.ready,
+                status: '',
                 lives: 8,
                 guesses: [],
             }

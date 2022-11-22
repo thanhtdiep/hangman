@@ -28,6 +28,8 @@ interface PlayerType {
   name: string,
   lives: number,
   guesses: string[],
+  status: string,
+  ready: boolean,
   [x: string]: any
 }
 
@@ -150,6 +152,7 @@ export default function Home() {
           type: 'winner',
           name: name,
           lives: lives,
+          status: 'win',
           guesses: guesses
         }
         socket.emit('update', data)
@@ -200,6 +203,7 @@ export default function Home() {
         ...p,
         lives: msg.lives,
         guesses: msg.guesses,
+        status: msg.status,
       }
       newPlayers.push(data)
     })
@@ -217,7 +221,8 @@ export default function Home() {
       const newPlayers = updatePlayerLists(lobby.players, {
         id: lobby.client_id,
         lives: newLives,
-        guesses: guesses
+        guesses: guesses,
+        status: newLives <= 0 ? 'lose' : ''
       })
       // send guess & lives to socket
       const data = {
@@ -226,7 +231,8 @@ export default function Home() {
         code: lobby.code,
         lives: newLives,
         guesses: newGuesses,
-        players: newPlayers
+        status: newLives <= 0 ? 'lose' : '',
+        players: newPlayers,
       }
       socket.emit('update', data)
     }
@@ -370,6 +376,7 @@ export default function Home() {
     socket.on('update-host', (msg: any) => {
       setLobby(prev => ({
         ...prev,
+        // up-date status and ready 
         host: msg.is_host,
         code: msg.code,
         players: msg.players
@@ -412,8 +419,14 @@ export default function Home() {
         setPostGame({
           winner: msg
         })
+        // update winner in player list
+        setLobby((prevLobby: Lobby) => {
+          if (!prevLobby.players) return prevLobby;
+          const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
+          return { ...prevLobby, players: newPlayers }
+        })
+        // render lose 
         setStatus('lose')
-
       }
       // no one win
       if (msg.type == 'lose') {
@@ -514,20 +527,17 @@ export default function Home() {
         ))}
 
       </header>
-      <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' && 'justify-center'}`}>
+      <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
-          <div className='flex flex-row mt-[1rem] h-[10rem] sm:h-[15rem]'>
+          <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
             {/* Show players in lobby */}
             {lobby.players &&
-              <div className='flex flex-1 mt-2 w-[99vw] overflow-scroll'>
+              <div className='grid grid-cols-2 gap-2 sm:grid-cols-4 justify-center'>
                 {/* implement grid  */}
                 {lobby.players.map((p, idx) => {
-                  if (p.id == socket.id) return;
                   return (
-                    <>
-                      <Player key={idx} player={p} winSize={winSize} className='mr-2' />
-                    </>
+                    <Player key={idx} self={p.id == socket.id} mode={mode} player={p} winSize={winSize} className='' />
                   )
                 })}
               </div>
@@ -652,14 +662,6 @@ export default function Home() {
               }
               {tts && hint && mode !== 'multiple' &&
                 <div className='flex flex-col items-center'>
-                  {/* <div className='flex flex-col items-center tracking-wide text-sm sm:text-base mb-4 animate-bounce-stop'>
-                  <p
-                    className='capitalize border-2 border-white rounded-lg p-2'
-                  >hint!
-                  </p>
-                  <p className='rotate-180 absolute top-9'>^</p>
-                </div> */}
-
                   <motion.button
                     initial='hidden'
                     animate={hint && tts ? 'visible' : 'hidden'}
@@ -703,7 +705,7 @@ export default function Home() {
                 </>
               }
               {/* MULTIPLE */}
-              {mode == 'multiple' && postGame &&
+              {mode == 'multiple' && (status == 'win' || postGame) &&
                 <>
                   {postGame?.winner ?
                     // found a winner

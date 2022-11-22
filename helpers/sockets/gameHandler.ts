@@ -57,7 +57,6 @@ export default (io: any, socket: any) => {
         if (msg.type == 'progress') {
             // send the updated guesss and lives
             msg.is_host = socket.is_host;
-            // client loop through player on their state and update
             socket.in(msg.code).emit('update-game', msg);
             // live check
             const players = msg.players;
@@ -73,13 +72,9 @@ export default (io: any, socket: any) => {
         // we found a winner
         if (msg.type == 'winner') {
             // send winner info
+            msg.id = socket.id;
             // render winner screen
             socket.in(socket.room).emit('update-game', msg);
-        }
-        
-        // new gamer
-        if (msg.type == 'new') {
-
         }
     }
 

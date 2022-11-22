@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       animation: {
-        'bounce-stop': 'bounce 1s 5',
+        'bounce-stop': 'bounce 1s 3',
       }
     },
   },
