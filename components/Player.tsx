@@ -52,6 +52,7 @@ const slideVariants: any = {
 
 const AnimatedText = () => {
     // TODO: Add sequence to fade away after bounce
+    // TODO: need to add disconnect functions
     const transitionValues = {
         duration: 0.8,
         yoyo: 5,
