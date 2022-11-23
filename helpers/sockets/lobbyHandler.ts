@@ -1,3 +1,5 @@
+import {checkLobbyCap, checkLobbyReady} from "../../helpers/sockets/socketUtils";
+
 export default (io: any, socket: any) => {
     // store player array
     const createLobby = async (data: any) => {
@@ -35,6 +37,17 @@ export default (io: any, socket: any) => {
     }
 
     const joinLobby = async (data: any) => {
+        // check lobby count (MAX: 4)
+        const isEnoughPlayers = checkLobbyCap(socket, io);
+        if (!isEnoughPlayers) {
+            const msg = {
+                description: 'Lobby is full! Please try again later.',
+                type: 'lobby-full',
+                className: 'negative-red',
+            };
+            io.to(socket.id).emit('update-error', msg)
+        }
+        // execution
         if (!data.return) {
             socket.join(data.code)
             socket.is_host = false;
@@ -43,6 +56,7 @@ export default (io: any, socket: any) => {
             socket.nickname = data.name;
             socket.room = data.code;
         }
+        // grab lobby players to players list configure
         const sockets = await io.in(data.code).fetchSockets();
         // config players
         var newPlayers: any = [];

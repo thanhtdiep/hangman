@@ -1,5 +1,6 @@
 import axios from 'axios';
 import GLOBALS from '../../global.json';
+import {checkLobbyReady} from "../../helpers/sockets/socketUtils";
 
 interface PlayerType {
     id: number,
@@ -81,7 +82,17 @@ export default (io: any, socket: any) => {
     // start game
     // update game progress
     const startGame = async (msg: any) => {
-        // chekc if sender is host
+        // check all players in lobby ready
+        const isReady = checkLobbyReady(socket, io)
+        if (!isReady) {
+            const msg = {
+                description: 'Everyone needs to be ready to start',
+                type: 'lobby-not-ready',
+                className: 'negative-red',
+            };
+            io.to(socket.id).emit('update-error', msg)
+        }
+        // check if sender is host
         if (socket.is_host && msg.code) {
             console.log('Game start!')
             let newWord = '';
@@ -91,15 +102,6 @@ export default (io: any, socket: any) => {
             io.in(msg.code).emit('start-game', newWord)
         }
     }
-
-    // update error channel
-    // update game progress
-    const errorGame = (msg: any) => {
-        console.log('Update lobby')
-        // emit update-game
-        // handle guesses, lives and winner update
-    }
     socket.on("update", updateGame);
     socket.on("start", startGame);
-    socket.on("error", errorGame);
 };

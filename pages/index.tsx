@@ -23,6 +23,11 @@ interface Size {
   width: number,
   height: number
 }
+interface Error {
+  type?: string,
+  description: string,
+  className?: string,
+}
 interface PlayerType {
   id: number,
   name: string,
@@ -104,7 +109,7 @@ export default function Home() {
   const [modal, setModal] = React.useState<boolean>(false)
   const [hint, setHint] = React.useState<boolean>(DEV)
   const [tts, SetTts] = React.useState<SpeechSynthesisUtterance>()
-  const [error, setError] = React.useState<string>('')
+  const [error, setError] = React.useState<Error>()
 
   Modal.setAppElement('#modals')
 
@@ -118,7 +123,9 @@ export default function Home() {
       .catch((err) => {
         if (err.message) {
           console.log(err.message)
-          setError(err.message)
+          setError({
+            description: err.message
+          })
         }
         if (err.error) {
           console.log(err.error)
@@ -448,6 +455,7 @@ export default function Home() {
     // error channel
     socket.on('update-error', (msg: any) => {
       console.log(msg)
+      setError(msg)
     })
   }
 
@@ -546,7 +554,7 @@ export default function Home() {
           <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
             {/* Show players in lobby */}
             {lobby.players &&
-              <div className='grid grid-cols-2 gap-2 sm:grid-cols-4 justify-center'>
+              <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 sm:grid-cols-4 justify-center '>
                 {/* implement grid  */}
                 {lobby.players.map((p, idx) => {
                   return (
@@ -557,6 +565,12 @@ export default function Home() {
             }
           </div>
           : null
+        }
+        {/* Error box */}
+        {error &&
+          <div className='flex flex-col'>
+            Error: {error.description}
+          </div>
         }
         {/* INTRO */}
         {mode === 'intro' &&
@@ -763,11 +777,6 @@ export default function Home() {
               })}
             </motion.div>
           </div>
-          {error &&
-            <div className='flex flex-col'>
-              Error: {error}
-            </div>
-          }
         </>
           : null
         }

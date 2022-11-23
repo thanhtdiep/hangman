@@ -53,6 +53,7 @@ const slideVariants: any = {
 const AnimatedText = () => {
     // TODO LATER: Add sequence to fade away after bounce 
     // TODO: need to add disconnect functions
+    const [hide, setHide] = React.useState<boolean>(false);
     const transitionValues = {
         duration: 0.8,
         yoyo: 5,
@@ -69,7 +70,8 @@ const AnimatedText = () => {
             animate={{
                 y: ["0", "-.85rem", "-1rem", "-.85rem", "0"],
             }}
-            className='text-center font-bold text-sm uppercase text-white'
+            onAnimationComplete={() => setTimeout(() => { setHide(true), [2000] })}
+            className={`text-center font-bold text-sm uppercase text-white ${hide ? 'opacity-0 absolute' : ''}`}
         >
             you
         </motion.div>
@@ -79,7 +81,7 @@ const AnimatedText = () => {
 const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
     //  resize when on phone
     return (
-        <div className={`flex-col items-center ${player.status == 'lose' ? 'opacity-50' : ''}`}>
+        <div className={`flex-col items-center justify-center ${player.status == 'lose' ? 'opacity-50' : ''}`}>
             {/* Crown for winner */}
             {player.status == 'win' ?
                 <Lottie
@@ -89,8 +91,11 @@ const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
                 />
                 : <div className='h-[2rem]'></div>
             }
-            {self &&
-                <AnimatedText />
+            {self ?
+                <div className='h-[2rem]'>
+                    <AnimatedText />
+                </div>
+                : <div className='h-[2rem]'></div>
             }
             <div className={`${className} w-[10rem] h-[4rem] sm:w-[12rem] sm:h-[6rem] p-2 flex flex-row border-2 border-white rounded-lg justify-center items-center`}>
                 <motion.div
