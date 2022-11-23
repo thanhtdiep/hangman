@@ -51,7 +51,7 @@ const slideVariants: any = {
 }
 
 const AnimatedText = () => {
-    // TODO: Add sequence to fade away after bounce
+    // TODO LATER: Add sequence to fade away after bounce 
     // TODO: need to add disconnect functions
     const transitionValues = {
         duration: 0.8,
@@ -67,7 +67,7 @@ const AnimatedText = () => {
                 height: transitionValues
             }}
             animate={{
-                y: ["0", "-.85rem", "-1rem"],
+                y: ["0", "-.85rem", "-1rem", "-.85rem", "0"],
             }}
             className='text-center font-bold text-sm uppercase text-white'
         >

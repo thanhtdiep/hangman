@@ -317,7 +317,7 @@ export default function Home() {
     setMode('lobby')
   }
   const handleLeaveLobby = async () => {
-    socket.emit('leave', lobby.code)
+    socket.emit('leave')
     // clear states
     setLobby({ code: '' })
     setStatus('')
@@ -451,6 +451,12 @@ export default function Home() {
     })
   }
 
+  // when client disconnect or close tab
+  const handleDisconnect = () => {
+    if (!socket && lobby.code) return;
+    handleLeaveLobby()
+  }
+
   // monitor guesses
   React.useEffect(() => {
     // check if all keywords are guessed
@@ -479,6 +485,13 @@ export default function Home() {
 
   React.useEffect(() => {
     socketInitializer()
+
+    // listen to when tab closing
+    window.addEventListener('beforeunload', handleDisconnect)
+    return () => {
+      // clear up event listener
+      window.removeEventListener('beforeunload', handleDisconnect)
+    }
   }, [])
 
   const modalStyles = {

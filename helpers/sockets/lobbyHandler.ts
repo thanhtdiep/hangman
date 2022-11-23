@@ -67,9 +67,10 @@ export default (io: any, socket: any) => {
         });
     }
 
-    const leaveLobby = async (room: any) => {
+    const leaveLobby = async () => {
+        const room = socket.room;
         socket.leave(room)
-        console.log('User left lobby')
+        console.log(`${socket.nickname} has left ${room}`)
         // update remaing player for other client
         const sockets = await io.in(room).fetchSockets();
         // check if player is host
@@ -96,11 +97,13 @@ export default (io: any, socket: any) => {
             code: room,
             players: newList
         });
+        // clear socket room
+        socket.room = null
     }
 
     // update error channel
-
     socket.on("create", createLobby);
     socket.on("join", joinLobby);
     socket.on("leave", leaveLobby);
+    // socket.on("disconnect", disconnectLobby);
 };
