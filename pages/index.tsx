@@ -206,6 +206,7 @@ export default function Home() {
         newPlayers.push(p);
         return;
       }
+      // TODO: handle ready here
       const data = {
         ...p,
         lives: msg.lives,
@@ -450,6 +451,16 @@ export default function Home() {
         ...prev,
         host: msg.is_host
       }))
+    })
+
+    // receive host pass channel
+    socket.on('update-ready', (msg: any) => {
+      // update player ready in player list
+      setLobby((prevLobby: Lobby) => {
+        if (!prevLobby.players) return prevLobby;
+        const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
+        return { ...prevLobby, players: newPlayers }
+      })
     })
 
     // error channel

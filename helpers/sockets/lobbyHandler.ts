@@ -115,9 +115,17 @@ export default (io: any, socket: any) => {
         socket.room = null
     }
 
+    const playerReady = async (ready: boolean) => {
+        socket.ready = ready;
+        io.in(socket.room).emit('update-ready', {
+            id: socket.id,
+            ready: ready
+        });
+    }
+
     // update error channel
     socket.on("create", createLobby);
     socket.on("join", joinLobby);
     socket.on("leave", leaveLobby);
-    // socket.on("disconnect", disconnectLobby);
+    socket.on("ready", playerReady);
 };
