@@ -14,7 +14,7 @@ import Modal from 'react-modal';
 import Lottie from "lottie-react";
 import { motion } from 'framer-motion';
 import { useWindowSize } from '../helpers/useWindowSize';
-import io from 'Socket.IO-client'
+import io from 'socket.io-client'
 import { v4 as uuid } from 'uuid';
 import winAnimation from '../public/lottie/hangman-win.json';
 import loseAnimation from '../public/lottie/hangman-lose.json';
