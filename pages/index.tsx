@@ -615,7 +615,9 @@ export default function Home() {
               }
             </div>
             {/* TAGS */}
-            <Tags tags={tags} className='mb-2' />
+            {mode === 'lobby' &&
+              <Tags tags={tags} className='mb-2' />
+            }
           </>
           : null
         }
@@ -811,13 +813,12 @@ export default function Home() {
                   <Button title='quit' className='w-[10rem] uppercase mb-2' onClick={handleLeaveLobby} />
                 </>
               }
-
             </motion.div>
             {/* ALPHABET */}
             <motion.div
               className='flex flex-wrap items-center justify-center'
               initial='visible'
-              animate={!status && !error ? 'visible' : "hiddenDown"}
+              animate={status === '' ? 'visible' : "hiddenDown"}
               variants={slideVairant}
             >
               {GLOBALS.ALPHABET.map((key, idx) => {
