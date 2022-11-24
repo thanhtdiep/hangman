@@ -20,11 +20,11 @@ const slideVariants = {
 
 const Tags: FC<Props> = ({ tags, className }) => {
     return (
-        <div className={`overflow-hidden inline-block ${className}`}>
+        <div className={`overflow-hidden flex flex-row ${className}`}>
             {tags.map((t, idx) => (
                 <motion.div
                     key={idx}
-                    className='flex rounded-full bg-white text-black font-bold text-xs sm:text-sm py-2 px-3'
+                    className='flex rounded-full ml-2 bg-white text-black font-bold text-xs sm:text-sm py-2 px-3'
                     initial='hidden'
                     variants={slideVariants}
                     animate={t ? 'visible' : 'hidden'}

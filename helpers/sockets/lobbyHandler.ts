@@ -43,7 +43,7 @@ export default (io: any, socket: any) => {
             const msg = {
                 description: 'Lobby is full! Please try again later.',
                 type: 'lobby-full',
-                className: 'negative-red',
+                className: 'bg-negative-red',
             };
             io.to(socket.id).emit('update-error', msg)
             return;

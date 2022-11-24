@@ -514,8 +514,15 @@ export default function Home() {
   React.useEffect(() => {
     // 
     if (lobby.players) {
+      let arr = [];
       const count = lobby?.players.length;
-      setTags([`${count}/${MAX_PLAYER}`])
+      arr.push(`${count}/${MAX_PLAYER}`)
+
+      // not enough player
+      if (lobby.players.length < 2) {
+        arr.push('Min player is 2')
+      }
+      setTags(arr)
     }
   }, [lobby.players])
 
@@ -622,9 +629,13 @@ export default function Home() {
         {mode === 'intro' &&
           <>
             {/* Start single player */}
-            <Button title='start' className='w-[10rem] uppercase mb-2' onClick={() => setMode('single')} />
+            <div className='flex flex-col mb-2'>
+              <h1 className='uppercase border-b-2 border-white mb-2'>single player</h1>
+              <Button title='start' className='w-[10rem] uppercase mb-2' onClick={() => setMode('single')} />
+            </div>
             {/* Create a multiplayer lobby */}
-            <form className='flex flex-col justify-center items-center'>
+            <div className='flex flex-col'>
+              <h1 className='uppercase border-b-2 border-white mb-2'>multiplayer</h1>
               <input
                 id='name'
                 type='text'
@@ -634,10 +645,6 @@ export default function Home() {
                 placeholder='Name'
                 required
               />
-              <Button title='create a game' className='w-[10rem] uppercase mb-2' onClick={handleCreateLobby} />
-            </form>
-            {/*  Join a multiplayer lobby */}
-            <form className='flex flex-col justify-center items-center'>
               <input
                 id='lobby'
                 type='text'
@@ -647,8 +654,11 @@ export default function Home() {
                 placeholder='Lobby Code'
                 required
               />
-              <Button title='join a game' className='w-[10rem] uppercase' onClick={handleJoin} />
-            </form>
+              <Button disabled={name ? false : true} title='create a game' className='disabled:opacity-50 w-[10rem] uppercase mb-2' onClick={handleCreateLobby} />
+              {/*  Join a multiplayer lobby */}
+              <Button disabled={name && lobby.code ? false : true} title='join a game' className='disabled:opacity-50 w-[10rem] uppercase' onClick={handleJoin} />
+            </div>
+
           </>
         }
         {/* LOBBY */}
