@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Server as IOServer } from 'Socket.IO';
+import { Server as IOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http'
 import type { Socket as NetSocket } from 'net'
 
