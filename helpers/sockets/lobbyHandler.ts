@@ -27,7 +27,6 @@ export default (io: any, socket: any) => {
         })
         socket.players = newPlayers;
         // join lobby
-        console.log('[socket]', 'join room :', data.code)
         // update player list to host
         io.to(socket.id).emit('update-host', {
             is_host: socket.is_host,
@@ -75,7 +74,6 @@ export default (io: any, socket: any) => {
                 newPlayers.push(newPlayer)
             })
             socket.players = newPlayers;
-            console.log('[socket]', 'join room :', data.code)
             // update player list
             io.in(data.code).emit('player-join', {
                 id: socket.id,
@@ -109,7 +107,6 @@ export default (io: any, socket: any) => {
                 newPlayers.push(newPlayer)
             })
             socket.players = newPlayers;
-            console.log('[socket]', 'join room :', data.code)
             // update player list
             io.in(data.code).emit('player-join', {
                 code: data.code,

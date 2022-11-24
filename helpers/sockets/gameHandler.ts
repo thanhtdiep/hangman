@@ -18,7 +18,6 @@ const fetchWord = async () => {
     })
         .then((response) => {
             const word = response.data.word
-            console.log(word)
             return word
         })
         .catch((err) => {
@@ -51,8 +50,6 @@ const fetchWord = async () => {
 export default (io: any, socket: any) => {
     // update game progress
     const updateGame = (msg: any) => {
-        console.log('Update lobby')
-        console.log(msg)
         // emit update-game
         // handle guesses, lives and winner update
         if (msg.type == 'progress') {
@@ -94,7 +91,6 @@ export default (io: any, socket: any) => {
         }
         // check if sender is host
         if (socket.is_host && msg.code) {
-            console.log('Game start!')
             let newWord = '';
             // fetch word
             await fetchWord().then((res) => newWord = res);

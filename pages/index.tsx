@@ -130,7 +130,6 @@ export default function Home() {
       })
       .catch((err) => {
         if (err.message) {
-          console.log(err.message)
           setError({
             description: err.message
           })
@@ -138,7 +137,6 @@ export default function Home() {
         if (err.error) {
           console.log(err.error)
         }
-        console.log(err)
         console.log('Error has occured')
         setStatus('')
         cb('', false)
@@ -221,7 +219,6 @@ export default function Home() {
         // guesses: msg.guesses,
         // status: msg.status,
       }
-      // console.log(data)
       newPlayers.push(data)
     })
     return newPlayers;
@@ -426,7 +423,6 @@ export default function Home() {
 
     // start game channel
     socket.on('start-game', (msg: any) => {
-      console.log(msg)
       // render keyword
       const splitWord = msg.toLowerCase().split('')
       setKeywords({
@@ -442,7 +438,6 @@ export default function Home() {
     socket.on('update-game', async (msg: any) => {
       // update player step
       console.log('Other player is making a move')
-      console.log(msg)
       // no one win
       if (msg.type == 'lose') {
         setPostGame({
@@ -494,7 +489,6 @@ export default function Home() {
 
     // error channel
     socket.on('update-error', (msg: any) => {
-      console.log(msg)
       setError(msg)
     })
   }
