@@ -22,6 +22,7 @@ interface Player {
     name: string,
     lives: number,
     is_host?: boolean,
+    ready?: boolean,
     status?: string,
     guesses: string[]
 }
@@ -55,8 +56,9 @@ const AnimatedText = () => {
     // TODO: need to add disconnect functions
     const [hide, setHide] = React.useState<boolean>(false);
     const transitionValues = {
-        duration: 0.8,
-        yoyo: 5,
+        duration: 0.83,
+        repeat: 5,
+        repeatType: 'reverse',
         ease: "easeOut"
     };
 
@@ -68,7 +70,7 @@ const AnimatedText = () => {
                 height: transitionValues
             }}
             animate={{
-                y: ["0", "-.85rem", "-1rem", "-.85rem", "0"],
+                y: ["0", "-.5rem"],
             }}
             onAnimationComplete={() => setTimeout(() => { setHide(true), [2000] })}
             className={`text-center font-bold text-sm uppercase text-white ${hide ? 'opacity-0 absolute' : ''}`}
@@ -82,21 +84,21 @@ const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
     //  resize when on phone
     return (
         <div className={`flex-col items-center justify-center ${player.status == 'lose' ? 'opacity-50' : ''}`}>
-            {/* Crown for winner */}
-            {player.status == 'win' ?
-                <Lottie
-                    animationData={crownAnimation}
-                    loop={true}
-                    className='w-[2rem]'
-                />
-                : <div className='h-[2rem]'></div>
-            }
-            {self ?
-                <div className='h-[2rem]'>
-                    <AnimatedText />
-                </div>
-                : <div className='h-[2rem]'></div>
-            }
+            {/* Crown for winner & SELF INDICATOR */}
+            <div className='h-[2rem] flex items-center justify-center'>
+                {player.status == 'win' &&
+                    <Lottie
+                        animationData={crownAnimation}
+                        loop={true}
+                        className='w-[2rem]'
+                    />
+                }
+                {self &&
+                    <div className='h-[2rem]'>
+                        <AnimatedText />
+                    </div>
+                }
+            </div>
             <div className={`${className} w-[10rem] h-[4rem] sm:w-[12rem] sm:h-[6rem] p-2 flex flex-row border-2 border-white rounded-lg justify-center items-center`}>
                 <motion.div
                     className='ml-1'
@@ -123,6 +125,12 @@ const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
                         animate={mode == 'multiple' ? 'visible' : 'hidden'}
                     >{player.guesses.length} guesses</motion.p>
                 </div>
+            </div>
+            {/* READY */}
+            <div className='h-[2rem] flex items-center justify-center'>
+                {player.ready && mode === 'lobby' &&
+                    <h2 className='text-base text-white uppercase font-bold'>ready</h2>
+                }
             </div>
         </div>
     )

@@ -17,7 +17,7 @@ module.exports = {
         'bounce-stop': 'bounce 1s 3',
       },
       screens: {
-        'xs': '280px',
+        'xs': '300px',
       },
       colors: {
         'positive-green': '#34b233',

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import GLOBALS from '../../global.json';
-import {checkLobbyReady} from "../../helpers/sockets/socketUtils";
+import { checkLobbyReady } from "../../helpers/sockets/socketUtils";
 
 interface PlayerType {
     id: number,
@@ -58,7 +58,7 @@ export default (io: any, socket: any) => {
         if (msg.type == 'progress') {
             // send the updated guesss and lives
             msg.is_host = socket.is_host;
-            socket.in(msg.code).emit('update-game', msg);
+            io.in(msg.code).emit('update-game', msg);
             // live check
             const players = msg.players;
             const stillPlaying = players.find((p: PlayerType) => {
@@ -75,7 +75,7 @@ export default (io: any, socket: any) => {
             // send winner info
             msg.id = socket.id;
             // render winner screen
-            socket.in(socket.room).emit('update-game', msg);
+            io.in(socket.room).emit('update-game', msg);
         }
     }
 
@@ -88,7 +88,7 @@ export default (io: any, socket: any) => {
             const msg = {
                 description: 'Everyone needs to be ready to start',
                 type: 'lobby-not-ready',
-                className: 'negative-red',
+                className: 'bg-negative-red',
             };
             io.to(socket.id).emit('update-error', msg)
         }

@@ -7,6 +7,9 @@ import React, { FC } from 'react';
 import Key from '../components/Key';
 import Man from '../components/Man';
 import Player from '../components/Player';
+import Alert from '../components/Alert';
+import Tags from '../components/Tags';
+import CodeBox from '../components/CodeBox';
 import Modal from 'react-modal';
 import Lottie from "lottie-react";
 import { motion } from 'framer-motion';
@@ -55,7 +58,8 @@ interface Keyword {
 
 interface ButtonProps {
   title: string,
-  className: string,
+  className?: string,
+  disabled?: boolean,
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 const slideVairant = {
@@ -92,7 +96,9 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = true
+const DEV = false
+const MIN_PLAYER = 2
+const MAX_PLAYER = 4
 // TODO: Add framer animation, add check for duplicate old and new word
 export default function Home() {
   const winSize: Size = useWindowSize();
@@ -110,6 +116,8 @@ export default function Home() {
   const [hint, setHint] = React.useState<boolean>(DEV)
   const [tts, SetTts] = React.useState<SpeechSynthesisUtterance>()
   const [error, setError] = React.useState<Error>()
+  const [ready, setReady] = React.useState<boolean>(false)
+  const [tags, setTags] = React.useState<string[]>([])
 
   Modal.setAppElement('#modals')
 
@@ -136,7 +144,6 @@ export default function Home() {
         cb('', false)
       })
   }
-
 
   const checkGuess = (guesses: string[], newGuess: string, method: string = 'some') => {
     if (guesses.length == 0) return false;
@@ -177,7 +184,7 @@ export default function Home() {
       setHint(true)
     }
     setLives(prev => (prev - 1))
-    return newLives
+    return newLives;
   }
 
   // FOR SINGLEPLAYER
@@ -209,13 +216,15 @@ export default function Home() {
       // TODO: handle ready here
       const data = {
         ...p,
-        lives: msg.lives,
-        guesses: msg.guesses,
-        status: msg.status,
+        ...msg
+        // lives: msg.lives,
+        // guesses: msg.guesses,
+        // status: msg.status,
       }
+      // console.log(data)
       newPlayers.push(data)
     })
-    return newPlayers
+    return newPlayers;
   }
 
   const handleCheck = (splitWord: string[], key: string, status: string, lives: number) => {
@@ -244,6 +253,23 @@ export default function Home() {
       }
       socket.emit('update', data)
     }
+  }
+
+  const handleReady = (ready: boolean) => {
+    setReady(ready)
+    socket.emit('ready', ready);
+  }
+
+  const handleEnable = (players: PlayerType[]) => {
+    // ready check
+    let notReady = players.find((p: PlayerType) => {
+      return p.ready === false
+    })
+
+    // player count check
+    const enoughPlayer = players.length >= MIN_PLAYER && players.length <= MAX_PLAYER;
+    let enable = !notReady && enoughPlayer;
+    return enable
   }
 
   // FOR SINGLEPLAYER
@@ -288,20 +314,16 @@ export default function Home() {
     }))
   }
 
-  const handleJoin = () => {
+  const handleJoin = (e: any) => {
+    e.preventDefault();
     if (!name) return;
     if (lobby?.code) {
       socket.emit('join', {
         name: name,
         code: lobby?.code
       })
-      // update current client id
-      setLobby(prev => ({
-        ...prev,
-        client_id: socket.id
-      }))
-      setMode('lobby')
     }
+    // start lloader
   }
 
   const handleCreateLobby = async () => {
@@ -364,6 +386,17 @@ export default function Home() {
     socket = io()
     // Whenever player join lobby
     socket.on('player-join', (msg: any) => {
+      // SELF JOINED SUCCESFULLY
+      if (msg.id === socket.id) {
+        // update current client id
+        setLobby(prev => ({
+          ...prev,
+          client_id: socket.id
+        }))
+        setMode('lobby')
+      }
+
+      // UPDATE PLAYER LIST
       setLobby(prev => ({
         ...prev,
         code: msg.code,
@@ -410,14 +443,21 @@ export default function Home() {
       // update player step
       console.log('Other player is making a move')
       console.log(msg)
-
-      if (msg.type == 'progress') {
-        setLobby((prevLobby: Lobby) => {
-          if (!prevLobby.players) return prevLobby;
-          const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
-          return { ...prevLobby, players: newPlayers }
+      // no one win
+      if (msg.type == 'lose') {
+        setPostGame({
+          description: msg.description
         })
+        setStatus('lose')
+        return;
       }
+
+      // player progress
+      setLobby((prevLobby: Lobby) => {
+        if (!prevLobby.players) return prevLobby;
+        const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
+        return { ...prevLobby, players: newPlayers }
+      })
 
       // found a winner 
       if (msg.type == 'winner') {
@@ -427,21 +467,10 @@ export default function Home() {
         setPostGame({
           winner: msg
         })
-        // update winner in player list
-        setLobby((prevLobby: Lobby) => {
-          if (!prevLobby.players) return prevLobby;
-          const newPlayers: PlayerType[] = updatePlayerLists(prevLobby.players, msg);
-          return { ...prevLobby, players: newPlayers }
-        })
         // render lose 
-        setStatus('lose')
-      }
-      // no one win
-      if (msg.type == 'lose') {
-        setPostGame({
-          description: msg.description
-        })
-        setStatus('lose')
+        if (msg.id !== socket.id) {
+          setStatus('lose')
+        }
       }
     })
 
@@ -472,7 +501,6 @@ export default function Home() {
 
   // when client disconnect or close tab
   const handleDisconnect = () => {
-    if (!socket && lobby.code) return;
     handleLeaveLobby()
   }
 
@@ -482,6 +510,14 @@ export default function Home() {
     // TODO: IMPROVEMENT - Move this code directly to where setGuesses is performed
     checkResult(guesses, keywords.split)
   }, [guesses])
+
+  React.useEffect(() => {
+    // 
+    if (lobby.players) {
+      const count = lobby?.players.length;
+      setTags([`${count}/${MAX_PLAYER}`])
+    }
+  }, [lobby.players])
 
   React.useEffect(() => {
     if (!DEV) {
@@ -534,8 +570,9 @@ export default function Home() {
 
   )
 
-  const Button: FC<ButtonProps> = ({ onClick, className, title }) => (
-    <button className={`${className} text-white bg-black hover:bg-white hover:text-black rounded-lg border-2 p-2`} onClick={onClick}>
+  const Button: FC<ButtonProps> = ({ onClick, className, title, disabled }) => (
+    <button disabled={disabled} className={`${className} text-white bg-black hover:bg-white hover:text-black rounded-lg border-2 p-2`}
+      onClick={onClick}>
       {title}
     </button>
   )
@@ -562,26 +599,24 @@ export default function Home() {
       <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
-          <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
-            {/* Show players in lobby */}
-            {lobby.players &&
-              <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 sm:grid-cols-4 justify-center '>
-                {/* implement grid  */}
-                {lobby.players.map((p, idx) => {
-                  return (
-                    <Player key={idx} self={p.id == socket.id} mode={mode} player={p} winSize={winSize} className='' />
-                  )
-                })}
-              </div>
-            }
-          </div>
+          <>
+            <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
+              {/* Show players in lobby */}
+              {lobby.players &&
+                <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 sm:grid-cols-4 justify-center '>
+                  {/* implement grid  */}
+                  {lobby.players.map((p, idx) => {
+                    return (
+                      <Player key={idx} self={p.id == socket.id} mode={mode} player={p} winSize={winSize} className='' />
+                    )
+                  })}
+                </div>
+              }
+            </div>
+            {/* TAGS */}
+            <Tags tags={tags} className='mb-2' />
+          </>
           : null
-        }
-        {/* Error box */}
-        {error &&
-          <div className='flex flex-col'>
-            Error: {error.description}
-          </div>
         }
         {/* INTRO */}
         {mode === 'intro' &&
@@ -621,17 +656,24 @@ export default function Home() {
           <div className='flex flex-1 flex-col items-center'>
             {/* Lobby Code */}
             {/* TODO: copy on click and hidden/reveal feature */}
-            <div className='w-[10rem]'>
-              {lobby?.code && <div className=' text-black bg-white border-2 p-2 rounded-lg text-center mb-2'>
-                <h2>Lobby Code</h2>
-                <p>{lobby.code}</p>
-              </div>}
-            </div>
+            {lobby.code &&
+              <CodeBox code={lobby?.code}
+                onClick={() => {
+                  if (lobby.code) navigator.clipboard.writeText(lobby.code)
+                  const alert = {
+                    description: 'Copied',
+                    className: 'bg-positive-green'
+                  }
+                  setError(alert)
+                }}
+              />
+            }
             {/* Start & leave lobby*/}
             <div className='flex-1 flex flex-col'>
-              {lobby.host &&
-                <Button title='start' className='w-[10rem] uppercase mb-2' onClick={handleStartMultiple} />
+              {lobby.host && lobby.players &&
+                <Button title='start' disabled={!handleEnable(lobby.players)} className={`w-[10rem] uppercase mb-2 ${handleEnable(lobby.players) ? '' : 'opacity-50'}`} onClick={handleStartMultiple} />
               }
+              <Button title={ready ? 'unready' : 'ready'} className='w-[10rem] uppercase mb-2' onClick={() => handleReady(!ready)} />
               <Button title='leave' className='w-[10rem] uppercase mb-2' onClick={handleLeaveLobby} />
             </div>
             {/* <p className='text-white'>{test}</p> */}
@@ -819,6 +861,12 @@ export default function Home() {
           </Modal>
         </div>
 
+        {/* ERROR BOX */}
+        <div className='absolute bottom-4 h-[4rem]'>
+          {error &&
+            <Alert error={error} className='mb-2' />
+          }
+        </div>
       </main >
 
       <footer className={styles.footer}>

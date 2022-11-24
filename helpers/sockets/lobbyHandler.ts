@@ -1,4 +1,4 @@
-import {checkLobbyCap, checkLobbyReady} from "../../helpers/sockets/socketUtils";
+import { checkLobbyCap, checkLobbyReady } from "../../helpers/sockets/socketUtils";
 
 export default (io: any, socket: any) => {
     // store player array
@@ -38,7 +38,7 @@ export default (io: any, socket: any) => {
 
     const joinLobby = async (data: any) => {
         // check lobby count (MAX: 4)
-        const isEnoughPlayers = checkLobbyCap(socket, io);
+        const isEnoughPlayers = await checkLobbyCap(socket, io, data.code);
         if (!isEnoughPlayers) {
             const msg = {
                 description: 'Lobby is full! Please try again later.',
@@ -46,39 +46,76 @@ export default (io: any, socket: any) => {
                 className: 'negative-red',
             };
             io.to(socket.id).emit('update-error', msg)
-        }
-        // execution
-        if (!data.return) {
-            socket.join(data.code)
-            socket.is_host = false;
-            socket.status = '';
-            socket.ready = false;
-            socket.nickname = data.name;
-            socket.room = data.code;
-        }
-        // grab lobby players to players list configure
-        const sockets = await io.in(data.code).fetchSockets();
-        // config players
-        var newPlayers: any = [];
-        sockets.map((s: any) => {
-            const newPlayer = {
-                id: s.id,
-                name: s.nickname,
-                is_host: s.is_host,
-                ready: s.ready,
-                status: '',
-                lives: 8,
-                guesses: [],
+            return;
+        } else {
+            // execution
+            if (!data.return) {
+                socket.join(data.code)
+                socket.is_host = false;
+                socket.status = '';
+                socket.ready = false;
+                socket.nickname = data.name;
+                socket.room = data.code;
             }
-            newPlayers.push(newPlayer)
-        })
-        socket.players = newPlayers;
-        console.log('[socket]', 'join room :', data.code)
-        // update player list
-        io.in(data.code).emit('player-join', {
-            code: data.code,
-            players: newPlayers
-        });
+            // grab lobby players to players list configure
+            const sockets = await io.in(data.code).fetchSockets();
+            console.log('lobby count after joined', sockets.length)
+            // config players
+            var newPlayers: any = [];
+            sockets.map((s: any) => {
+                const newPlayer = {
+                    id: s.id,
+                    name: s.nickname,
+                    is_host: s.is_host,
+                    ready: s.ready,
+                    status: '',
+                    lives: 8,
+                    guesses: [],
+                }
+                newPlayers.push(newPlayer)
+            })
+            socket.players = newPlayers;
+            console.log('[socket]', 'join room :', data.code)
+            // update player list
+            io.in(data.code).emit('player-join', {
+                id: socket.id,
+                code: data.code,
+                players: newPlayers
+            });
+            console.log('pass')
+            // execution
+            if (!data.return) {
+                socket.join(data.code)
+                socket.is_host = false;
+                socket.status = '';
+                socket.ready = false;
+                socket.nickname = data.name;
+                socket.room = data.code;
+            }
+            // grab lobby players to players list configure
+            const newSockets = await io.in(data.code).fetchSockets();
+            // config players
+            var newPlayers: any = [];
+            newSockets.map((s: any) => {
+                const newPlayer = {
+                    id: s.id,
+                    name: s.nickname,
+                    is_host: s.is_host,
+                    ready: s.ready,
+                    status: '',
+                    lives: 8,
+                    guesses: [],
+                }
+                newPlayers.push(newPlayer)
+            })
+            socket.players = newPlayers;
+            console.log('[socket]', 'join room :', data.code)
+            // update player list
+            io.in(data.code).emit('player-join', {
+                code: data.code,
+                players: newPlayers
+            });
+        }
     }
 
     const leaveLobby = async () => {
@@ -102,6 +139,8 @@ export default (io: any, socket: any) => {
             const newPlayer = {
                 id: s.id,
                 name: s.nickname,
+                ready: s.ready,
+                status: '',
                 lives: 8,
                 guesses: [],
             }
