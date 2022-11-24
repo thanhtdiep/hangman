@@ -1,5 +1,6 @@
 {
     "BASE_URL": "https://api.api-ninjas.com/v1/randomword",
+    "WORD_ROUTE": "/api/word",
     "INSTRUCTION": [
         "GOAL - Guess the hidden word.",
         "CORRECT GUESS - A character is revealed. Win when the word is revealed. ",

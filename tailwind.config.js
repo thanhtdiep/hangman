@@ -6,9 +6,23 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      sm: '480px',
+      md: '768px',
+      lg: '976px',
+      xl: '1440px',
+    },
     extend: {
       animation: {
-        'bounce-stop': 'bounce 1s 5',
+        'bounce-stop': 'bounce 1s 3',
+      },
+      screens: {
+        'xs': '300px',
+      },
+      colors: {
+        'positive-green': '#34b233',
+        'negative-red': '#FF0000',
+        'status-yellow': '#FBE106',
       }
     },
   },
