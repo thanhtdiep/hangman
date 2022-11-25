@@ -663,7 +663,9 @@ export default function Home() {
             {/* Lobby Code */}
             {/* TODO: copy on click and hidden/reveal feature */}
             {lobby.code &&
-              <CodeBox code={lobby?.code}
+              <CodeBox
+                code={lobby?.code}
+                className='mt-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300'
                 onClick={() => {
                   if (lobby.code) navigator.clipboard.writeText(lobby.code)
                   const alert = {

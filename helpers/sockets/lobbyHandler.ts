@@ -58,7 +58,6 @@ export default (io: any, socket: any) => {
             }
             // grab lobby players to players list configure
             const sockets = await io.in(data.code).fetchSockets();
-            console.log('lobby count after joined', sockets.length)
             // config players
             var newPlayers: any = [];
             sockets.map((s: any) => {
@@ -80,7 +79,6 @@ export default (io: any, socket: any) => {
                 code: data.code,
                 players: newPlayers
             });
-            console.log('pass')
             // execution
             if (!data.return) {
                 socket.join(data.code)
@@ -118,7 +116,6 @@ export default (io: any, socket: any) => {
     const leaveLobby = async () => {
         const room = socket.room;
         socket.leave(room)
-        console.log(`${socket.nickname} has left ${room}`)
         // update remaing player for other client
         const sockets = await io.in(room).fetchSockets();
         // check if player is host
