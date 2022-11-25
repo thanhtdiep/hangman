@@ -601,6 +601,10 @@ export default function Home() {
 
       </header>
       <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
+        {/* BACK FOR SINGLE */}
+        {mode === 'single' &&
+          <Button title='back' className='absolute top-2 left-4 w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
+        }
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
           <>
