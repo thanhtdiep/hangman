@@ -19,6 +19,7 @@ import { v4 as uuid } from 'uuid';
 import winAnimation from '../public/lottie/hangman-win.json';
 import loseAnimation from '../public/lottie/hangman-lose.json';
 import confettiAnimation from '../public/lottie/confetti.json';
+import wcAnimation from '../public/lottie/world-cup.json';
 
 let socket: any;
 
@@ -432,6 +433,8 @@ export default function Home() {
       checkTts('')
       // render status
       setMode('multiple')
+      // clear ready status
+      handleReady(false)
     })
 
     // update game channel
@@ -603,14 +606,21 @@ export default function Home() {
           <>
             <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
               {/* Show players in lobby */}
-              {lobby.players &&
+              {lobby.players ?
                 <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 sm:grid-cols-4 justify-center '>
-                  {/* implement grid  */}
                   {lobby.players.map((p, idx) => {
                     return (
                       <Player key={idx} self={p.id == socket.id} mode={mode} player={p} winSize={winSize} className='' />
                     )
                   })}
+                </div>
+                :
+                <div className='flex items-center'>
+                  <Lottie
+                    animationData={wcAnimation}
+                    loop={true}
+                    className='w-[7rem] bg-gray-00 rounded-full pointer-events-none'
+                  />
                 </div>
               }
             </div>
@@ -797,7 +807,7 @@ export default function Home() {
                 <>
                   {postGame?.winner ?
                     // found a winner
-                    <div className=''>
+                    <div className='mb-2 sm:mb-0'>
                       <h2>{postGame.winner.name} has found the word </h2>
                       <p>
                         with {postGame.winner.guesses.length} tries!
@@ -805,7 +815,7 @@ export default function Home() {
                     </div>
                     :
                     // everyone ran out of lives
-                    <div className=''>
+                    <div className='mb-2 sm:mb-0'>
                       {postGame?.description}
                     </div>
                   }
