@@ -97,7 +97,7 @@ const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = true
+const DEV = false
 const MIN_PLAYER = 2
 const MAX_PLAYER = 4
 // TODO: Add framer animation, add check for duplicate old and new word
