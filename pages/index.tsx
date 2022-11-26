@@ -351,6 +351,7 @@ export default function Home() {
     setStatus('')
     setGuesses([])
     setLives(8)
+    setReady(false)
     setPostGame({})
     // render intro screen
     setMode('intro')
@@ -608,10 +609,10 @@ export default function Home() {
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
           <>
-            <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? 'h-[20rem]' : 'h-[10rem]'} sm:h-[15rem]`}>
+            <div className={`grid grid-row-1 mt-[1rem] ${mode == 'lobby' ? '' : 'h-[10rem]'} sm:h-[15rem]`}>
               {/* Show players in lobby */}
               {lobby.players ?
-                <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 sm:grid-cols-4 justify-center '>
+                <div className='grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-4 justify-center'>
                   {lobby.players.map((p, idx) => {
                     return (
                       <Player key={idx} self={p.id == socket.id} mode={mode} player={p} winSize={winSize} className='' />
@@ -630,7 +631,7 @@ export default function Home() {
             </div>
             {/* TAGS */}
             {mode === 'lobby' &&
-              <Tags tags={tags} className='mb-2' />
+              <Tags tags={tags} className='my-[2rem]' />
             }
           </>
           : null

@@ -99,7 +99,7 @@ const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
                     </div>
                 }
             </div>
-            <div className={`${className} w-[10rem] h-[4rem] sm:w-[12rem] sm:h-[6rem] p-2 flex flex-row border-2 border-white rounded-lg justify-center items-center`}>
+            <div className={`${className} w-[9rem] h-[4rem] sm:w-[10rem] sm:h-[5rem] md:w-[11rem] md:h-[6rem] lg:w-[12rem] p-2 flex flex-row border-2 border-white rounded-lg justify-center items-center`}>
                 <motion.div
                     className='ml-1'
                     initial='hidden'

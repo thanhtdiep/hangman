@@ -90,37 +90,28 @@ export default (io: any, socket: any) => {
                 code: data.code,
                 players: newPlayers
             });
-            // execution
-            if (!data.return) {
-                socket.join(data.code)
-                socket.is_host = false;
-                socket.status = '';
-                socket.ready = false;
-                socket.nickname = data.name;
-                socket.room = data.code;
-            }
-            // grab lobby players to players list configure
-            const newSockets = await io.in(data.code).fetchSockets();
-            // config players
-            var newPlayers: any = [];
-            newSockets.map((s: any) => {
-                const newPlayer = {
-                    id: s.id,
-                    name: s.nickname,
-                    is_host: s.is_host,
-                    ready: s.ready,
-                    status: '',
-                    lives: 8,
-                    guesses: [],
-                }
-                newPlayers.push(newPlayer)
-            })
-            socket.players = newPlayers;
-            // update player list
-            io.in(data.code).emit('player-join', {
-                code: data.code,
-                players: newPlayers
-            });
+            // // grab lobby players to players list configure
+            // const newSockets = await io.in(data.code).fetchSockets();
+            // // config players
+            // var newPlayers: any = [];
+            // newSockets.map((s: any) => {
+            //     const newPlayer = {
+            //         id: s.id,
+            //         name: s.nickname,
+            //         is_host: s.is_host,
+            //         ready: s.ready,
+            //         status: '',
+            //         lives: 8,
+            //         guesses: [],
+            //     }
+            //     newPlayers.push(newPlayer)
+            // })
+            // socket.players = newPlayers;
+            // // update player list
+            // io.in(data.code).emit('player-join', {
+            //     code: data.code,
+            //     players: newPlayers
+            // });
         }
     }
 
