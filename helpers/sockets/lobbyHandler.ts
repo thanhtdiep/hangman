@@ -1,4 +1,4 @@
-import { checkLobbyCap, checkLobbyReady } from "../../helpers/sockets/socketUtils";
+import { checkLobbyCap, checkEmptyLobby } from "../../helpers/sockets/socketUtils";
 
 export default (io: any, socket: any) => {
     // store player array
@@ -36,6 +36,17 @@ export default (io: any, socket: any) => {
     }
 
     const joinLobby = async (data: any) => {
+        // chekc if lobby empty
+        const isEmpty = await checkEmptyLobby(socket, io, data.code);
+        if (!isEmpty) {
+            const msg = {
+                description: 'Lobby does not exist. Please enter a different code.',
+                type: 'lobby-not-exist',
+                className: 'bg-negative-red',
+            };
+            io.to(socket.id).emit('update-error', msg)
+            return;
+        }
         // check lobby count (MAX: 4)
         const isEnoughPlayers = await checkLobbyCap(socket, io, data.code);
         if (!isEnoughPlayers) {

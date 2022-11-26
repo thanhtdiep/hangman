@@ -90,14 +90,14 @@ const fadeVariant = {
 }
 
 const KEYWORD = {
-  whole: 'deeeeeeeeeeeêev',
+  whole: 'deeeeeeeeeeeeeev',
   split: ['d', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'v']
 }
 const BLANK_KEYWORD = {
   whole: '',
   split: []
 }
-const DEV = false
+const DEV = true
 const MIN_PLAYER = 2
 const MAX_PLAYER = 4
 // TODO: Add framer animation, add check for duplicate old and new word
@@ -603,7 +603,7 @@ export default function Home() {
       <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* BACK FOR SINGLE */}
         {mode === 'single' &&
-          <Button title='back' className='absolute top-2 left-4 w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
+          <Button title='back' className='absolute top-[3.5rem] sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
         }
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
@@ -711,7 +711,7 @@ export default function Home() {
             />}
           <div className='flex w-full flex-col lg:flex-row justify-evenly items-center mb-16 sm:mb-24 '>
             {/* Win or Lose message */}
-            <div className='flex flex-col items-center justify-center mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
+            <div className='flex flex-col items-center justify-center mb-2 sm:mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
               {status === 'win' &&
                 <>
                   <h1 className='text-white text-center text-[2rem] mb-4 capitalize'>nice job!</h1>
@@ -740,28 +740,31 @@ export default function Home() {
 
             </div>
             {/* Keyword */}
-            <div className={`flex flex-row lowercase text-white sm:text-[4rem] text-[2rem] leading-5 tracking-[1rem] select-none`}>
-              {status !== 'loading' ? keywords.split?.map((keyword, idx) => {
-                const isGuessed = checkGuess(guesses, keyword)
-                return (
-                  <div key={idx} className='flex flex-col justify-center items-center text-center w-[2rem] sm:w-[3rem]'>
-                    <div className='h-[1rem]'>
-                      {isGuessed ? keyword : ' '}
+            <div className={`flex flex-row lowercase items-center text-white sm:text-[4rem] xs:text-[2rem] text-[1rem] leading-5 tracking-[1rem] select-none`}>
+              <div className='flex flex-row flex-wrap'>
+                {status !== 'loading' ? keywords.split?.map((keyword, idx) => {
+                  const isGuessed = checkGuess(guesses, keyword)
+                  return (
+                    <div key={idx} className='flex flex-col justify-center items-center text-center w-[2rem] sm:w-[3rem]'>
+                      <div className='h-[1rem]'>
+                        {isGuessed ? keyword : ' '}
+                      </div>
+                      <div>_</div>
                     </div>
-                    <div>_</div>
-                  </div>
-                )
-              }) :
-                <>
-                  {'?'.split('').map((w, idx) => (
-                    <Key
-                      key={idx}
-                      className='animate-bounce cursor-auto'
-                      title={w}
-                    />
-                  ))}
-                </>
-              }
+                  )
+                }) :
+                  <>
+                    {'?'.split('').map((w, idx) => (
+                      <Key
+                        key={idx}
+                        className='animate-bounce cursor-auto'
+                        title={w}
+                      />
+                    ))}
+                  </>
+                }
+
+              </div>
               {tts && hint && mode !== 'multiple' &&
                 <div className='flex flex-col items-center'>
                   <motion.button
@@ -776,7 +779,6 @@ export default function Home() {
                     <Speaker />
                   </motion.button>
                 </div>
-
               }
             </div>
           </div>

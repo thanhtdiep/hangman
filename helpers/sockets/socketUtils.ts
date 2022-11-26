@@ -1,7 +1,16 @@
 const MAX_PLAYERS = 4
+const EMPTY_LOBBY = 0
 export const checkLobbyCap = async (socket: any, io: any, room: number) => {
     const sockets = await io.in(room).fetchSockets();
     if (sockets.length > MAX_PLAYERS - 1) {
+        return false;
+    }
+    return true;
+}
+
+export const checkEmptyLobby = async (socket: any, io: any, room: number) => {
+    const sockets = await io.in(room).fetchSockets();
+    if (sockets.length <= EMPTY_LOBBY ) {
         return false;
     }
     return true;
