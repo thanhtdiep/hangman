@@ -601,7 +601,7 @@ export default function Home() {
         ))}
 
       </header>
-      <main className={`flex flex-1 flex-col min-h-screen items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
+      <main className={`flex flex-1 flex-col h-[90vh] items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* BACK FOR SINGLE */}
         {mode === 'single' &&
           <Button title='back' className='absolute top-[3.5rem] sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
@@ -893,7 +893,7 @@ export default function Home() {
         </div>
       </main >
 
-      <footer className={styles.footer}>
+      {/* <footer className={styles.footer}>
         <a
           href="https://thanhdiep.vercel.app/"
           className='text-sm'
@@ -906,7 +906,7 @@ export default function Home() {
             <Image src="/logo32.png" alt="Logo" width={24} height={24} />
           </span>
         </a>
-      </footer>
+      </footer> */}
     </div >
   )
 }
