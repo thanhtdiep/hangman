@@ -604,7 +604,7 @@ export default function Home() {
       <main className={`flex flex-1 flex-col items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* BACK FOR SINGLE */}
         {mode === 'single' &&
-          <Button title='back' className='absolute top-[3.5rem] sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
+          <Button title='back' className='absolute top-[3.5rem] z-50  sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
         }
         {/* PLAYER LIST */}
         {mode === 'lobby' || mode === 'multiple' ?
@@ -703,7 +703,8 @@ export default function Home() {
           </div>
         }
         {/* RENDER - START | CREATE GAME | JOIN GAME | NAME INPUT - SINGLE MODE */}
-        {mode === 'single' || mode === 'multiple' ? <>
+        {mode === 'single' || mode === 'multiple' ? 
+        <div className='relative flex flex-col items-center sm:absolute sm:bottom-20'>
           {status === 'win' &&
             <Lottie
               animationData={confettiAnimation}
@@ -758,7 +759,7 @@ export default function Home() {
                     {'?'.split('').map((w, idx) => (
                       <Key
                         key={idx}
-                        className='animate-bounce cursor-auto'
+                        className='cursor-auto'
                         title={w}
                       />
                     ))}
@@ -854,7 +855,7 @@ export default function Home() {
               })}
             </motion.div>
           </div>
-        </>
+        </div>
           : null
         }
         {/* This will change status from intro to single OR multiple OR name input */}
