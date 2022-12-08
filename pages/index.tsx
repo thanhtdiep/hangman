@@ -601,7 +601,7 @@ export default function Home() {
         ))}
 
       </header>
-      <main className={`flex flex-1 flex-col h-[90vh] items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
+      <main className={`flex flex-1 flex-col items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* BACK FOR SINGLE */}
         {mode === 'single' &&
           <Button title='back' className='absolute top-[3.5rem] sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => setMode('intro')} />
@@ -638,7 +638,7 @@ export default function Home() {
         }
         {/* INTRO */}
         {mode === 'intro' &&
-          <>
+          <div className='absolute bottom-20'>
             {/* Start single player */}
             <div className='flex flex-col mb-2'>
               <h1 className='uppercase border-b-2 border-white mb-2'>single player</h1>
@@ -670,7 +670,7 @@ export default function Home() {
               <Button disabled={name && lobby.code ? false : true} title='join a game' className='disabled:opacity-50 w-[10rem] uppercase' onClick={handleJoin} />
             </div>
 
-          </>
+          </div>
         }
         {/* LOBBY */}
         {mode === 'lobby' &&
@@ -710,7 +710,7 @@ export default function Home() {
               loop={false}
               className='absolute bottom-0 z-30 w-full pointer-events-none'
             />}
-          <div className='flex w-full flex-col lg:flex-row justify-evenly items-center mb-16 sm:mb-24 '>
+          <div className='flex w-full flex-col lg:flex-row justify-evenly items-center mb-8 sm:mb-20 '>
             {/* Win or Lose message */}
             <div className='flex flex-col items-center justify-center mb-2 sm:mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
               {status === 'win' &&
@@ -835,7 +835,7 @@ export default function Home() {
             </motion.div>
             {/* ALPHABET */}
             <motion.div
-              className='flex flex-wrap items-center justify-center'
+              className='flex flex-wrap items-start justify-center'
               initial='visible'
               animate={status === '' ? 'visible' : "hiddenDown"}
               variants={slideVairant}
