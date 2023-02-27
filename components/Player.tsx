@@ -18,7 +18,7 @@ interface Size {
     height: number
 }
 interface Player {
-    id: number,
+    id: string,
     name: string,
     lives: number,
     is_host?: boolean,
@@ -83,7 +83,7 @@ const AnimatedText = () => {
 const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
     //  resize when on phone
     return (
-        <div className={`flex-col items-center justify-center ${player.status == 'lose' ? 'opacity-50' : ''}`}>
+        <div className={`flex-col items-center justify-center ${player.status == 'lose' && mode == 'multiple' ? 'opacity-50' : ''}`}>
             {/* Crown for winner & SELF INDICATOR */}
             <div className='h-[2rem] flex items-center justify-center'>
                 {player.status == 'win' &&
@@ -130,6 +130,14 @@ const Player: FC<Props> = ({ winSize, player, mode, self, className }) => {
             <div className='h-[2rem] flex items-center justify-center'>
                 {player.ready && mode === 'lobby' &&
                     <h2 className='text-base text-white uppercase font-bold'>ready</h2>
+                }
+                {!player.ready && player.status !== 'in-lobby' && mode === 'lobby' ?
+                    <h2 className='text-base text-white uppercase font-bold'>ingame</h2>
+                    : null
+                }
+                {!player.ready && player.status == 'in-lobby' && mode === 'lobby' ?
+                    <h2 className='text-base text-white uppercase font-bold'>in lobby</h2>
+                    : null
                 }
             </div>
         </div>

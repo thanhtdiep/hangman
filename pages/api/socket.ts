@@ -6,9 +6,6 @@ import type { Socket as NetSocket } from 'net'
 
 import lobbyHandler from "../../helpers/sockets/lobbyHandler";
 import gameHandler from "../../helpers/sockets/gameHandler";
-type Data = {
-    [x: string]: any
-}
 
 interface SocketServer extends HTTPServer {
     io?: IOServer | undefined
