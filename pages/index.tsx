@@ -365,10 +365,6 @@ export default function Home() {
     }))
   }
 
-  // when client disconnect or close tab
-  const handleDisconnect = () => {
-    handleLeaveLobby()
-  }
   const handleError = (err: Error) => {
     // TODO: Handle onError of LobbyComp
     // setLobby({
@@ -487,7 +483,7 @@ export default function Home() {
                   }
 
                   // check winner
-                  if (p.id !== lobby.client_id && p.status == 'win') {
+                  if (p.id !== lobby.client_id && p.status == 'win' && mode == 'multiple') {
                     // set Postgame
                     setPostGame({
                       winner: p
@@ -636,7 +632,7 @@ export default function Home() {
                 loop={false}
                 className='absolute bottom-0 z-30 w-full pointer-events-none'
               />}
-            <div className='flex w-full flex-col lg:flex-row justify-evenly items-center mb-8 sm:mb-20 '>
+            <div className='flex w-full flex-col lg:flex-row justify-evenly items-center mb-8 sm:my-20 '>
               {/* Win or Lose message */}
               <div className='flex flex-col items-center justify-center mb-2 sm:mb-16 lg:mb-0 w-[250px] lg:w-[150px] h-[250px] lg:h-[150px] '>
                 {status === 'win' &&

@@ -20,12 +20,13 @@ const Lobby: FC<ILobby> = ({ lobby, create, lives, keywords, guesses, status, re
         ready: false,
         keywords: keywords
     }
+    // const welcomeMsg = `${name} has joined the lobby.`
     // lobby presence
     const channelOpt = {
         channelName: lobby.code!
     }
+    // const [messages, setMessages] = React.useState([])
     const [presenceData, updateSelf] = usePresence(channelOpt, newPlayer)
-
     // receive data
     React.useEffect(() => {
         // Validation
