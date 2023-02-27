@@ -452,12 +452,11 @@ export default function Home() {
         ))}
 
       </header>
-      <main className={`flex flex-1 flex-col items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
+      <main className={`flex flex-1 min-h-[80vh] flex-col items-center ${mode == 'intro' || mode == 'single' ? 'justify-center' : ''}`}>
         {/* BACK FOR SINGLE */}
         {mode === 'single' &&
           <Button title='back' className='absolute top-[3.5rem] z-50  sm:top-2 left-4 w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm' onClick={() => {
-            setStatus('')
-            setMode('intro')
+            handleLeaveLobby()
           }} />
         }
         {/* PLAYER LIST */}
