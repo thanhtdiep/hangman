@@ -6,6 +6,8 @@ import Button from "@/comps/Button";
 import { motion } from "framer-motion";
 import { useKeyword } from "@/hooks/use-keyword";
 import { fadeVariant } from "@/animations";
+import { checkGuess } from "@/helpers/utils";
+import { BLANK_KEYWORD, KEYWORD } from "@/helpers/utils/data";
 
 const Speaker = () => (
   <svg
@@ -32,17 +34,10 @@ const Keyword: FC<IKeyword> = ({
   onNewKeyword,
 }) => {
   const [tts, setTts] = useState<SpeechSynthesisUtterance>();
-  const [modal, setModal] = useState(true);
   const { data, isLoading, isRefetching, error, isRefetchError, refetch } =
     useKeyword();
 
   // functions
-  const checkGuess = (guesses: string[], newGuess: string) => {
-    if (guesses.length == 0) return false;
-    return guesses.some((k: string) => {
-      return k.toLowerCase() === newGuess.toLowerCase();
-    });
-  };
   const checkTts = (word: string) => {
     // Check if TTS is supported
     if ("speechSynthesis" in window) {
@@ -116,7 +111,7 @@ const Keyword: FC<IKeyword> = ({
     );
   return (
     <div
-      className={`flex flex-row lowercase items-center text-white sm:text-[4rem] xs:text-[2rem] text-[1rem] leading-5 tracking-[1rem] select-none`}
+      className={`flex flex-row lowercase items-center text-white sm:text-[4rem] xs:text-[2rem] text-[1rem] leading-5 tracking-[1rem] select-none mb-10`}
     >
       <div className="flex flex-row flex-wrap">
         {data.word.split("").map((keyword: string, idx: number) => {

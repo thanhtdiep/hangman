@@ -12,5 +12,6 @@ export const useKeyword = () => {
       const { data } = await axios.get(GLOBALS.WORD_ROUTE);
       return data as Data;
     },
+    refetchOnWindowFocus: false
   });
 };
