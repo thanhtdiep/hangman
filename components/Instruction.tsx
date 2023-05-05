@@ -36,20 +36,22 @@ export default function Instuction({}) {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="absolute w-1/2 h-1/2 z-50 bg-black p-4 border-2 border-white rounded "
+            className="absolute overflow-scroll w-2/3 h-3/4 z-50 bg-black p-4 border-2 border-white rounded "
           >
-            <div className="relative flex flex-1 h-full flex-col items-center justify-center">
+            <div className="relative flex flex-1 h-full flex-col items-center justify-start  mb-[2rem] md:mb-[3rem] lg:mb-[5rem]">
               {/* Instruction & Tips */}
-              <Icon
-                icon={faXmarkCircle}
-                size="xl"
-                className="absolute cursor-pointer right-2 top-4 text-white w-3 h-3 sm:w-4 sm:h-4"
-                onClick={() => setModal(false)}
-              />
-              <h1 className="text-[1rem] sm:text-[2rem] mb-[2rem] md:mb-[3rem] lg:mb-[5rem]">
-                Instructions
-              </h1>
-              <ul className="flex flex-1 flex-col space-y-4 justify-center h-full">
+              <div className="relative flex flex-row w-full justify-center items-center">
+                <h1 className="flex uppercase text-[1rem] sm:text-[2rem]">
+                  Instructions
+                </h1>
+                <Icon
+                  icon={faXmarkCircle}
+                  size="xl"
+                  className="absolute right-0 cursor-pointer  text-white w-3 h-3 sm:w-4 sm:h-4"
+                  onClick={() => setModal(false)}
+                />
+              </div>
+              <ul className="flex flex-1 flex-col space-y-4 justify-start h-full">
                 {GLOBALS.INSTRUCTION.map((i, idx) => (
                   <li key={idx} className="">
                     {i}
