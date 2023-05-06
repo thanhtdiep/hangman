@@ -9,4 +9,4 @@ export const BLANK_KEYWORD = {
 export const MAX_PLAYER = 4;
 export const LIVES = 8;
 export const BREAKPOINT = 1028;
-export const DEV = true;
+export const DEV = false;
