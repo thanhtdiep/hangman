@@ -36,11 +36,19 @@ import { configureAbly } from "@ably-labs/react-hooks";
 
 // Get props
 export const getServerSideProps = (context: any) => {
+  const reqs = context.query;
+  if (!reqs.name || !reqs.code || reqs.host == undefined)
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
   return {
     props: {
-      name: context.query.name,
-      code: context.query.code,
-      host: context.query.host,
+      name: reqs.name,
+      code: reqs.code,
+      host: reqs.host,
     },
   };
 };
@@ -378,7 +386,7 @@ const Multiplayer = (props: MultiplayerPageProps) => {
         </div>
 
         {/* ERROR BOX */}
-        <div className="absolute bottom-4 h-[4rem]">
+        <div className="fixed bottom-4 h-[4rem]">
           {error && <Alert error={error} className="mb-2" />}
         </div>
       </main>

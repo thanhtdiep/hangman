@@ -1,5 +1,5 @@
 /* Nunito */
-@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -9,11 +9,11 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   color: white;
   background: black;
   flex: 1;
-  width: '100%';
+  width: "100%";
 }
 
 a {
@@ -35,3 +35,30 @@ a {
     background: black;
   }
 } */
+
+/* Scrollbar */
+/* width and height */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* track */
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+/* thumb */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* corner */
+::-webkit-scrollbar-corner {
+  background: black;
+}
