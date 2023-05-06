@@ -29,13 +29,16 @@ const Speaker = () => (
 const Keyword: FC<IKeyword> = ({
   guesses,
   hint,
-  mode,
   trigger,
+  disabled = false,
+  keyword,
   onNewKeyword,
 }) => {
   const [tts, setTts] = useState<SpeechSynthesisUtterance>();
   const { data, isLoading, isRefetching, error, isRefetchError, refetch } =
-    useKeyword();
+    useKeyword({ disabled: disabled });
+
+  // TODO: Add disabled props to stop query
 
   // functions
   const checkTts = (word: string) => {
@@ -66,55 +69,62 @@ const Keyword: FC<IKeyword> = ({
         whole: data.word,
         split: data.word.toLowerCase().split(""),
       };
-      onNewKeyword(keywordObj);
+      onNewKeyword && onNewKeyword(keywordObj);
 
       // single
-      if (mode === "single") {
+      if (hint) {
         checkTts(keywordObj.whole);
       }
     }
   }, [data]);
 
+  //
+  const hiddenWord = data ? data?.word.split("") : keyword?.split;
+
   // renders
-  if (isLoading || isRefetching)
+  if (isLoading || isRefetching || !hiddenWord)
     return (
       <>
         <Key className="cursor-auto animate-bounce" title="?" />
       </>
     );
-  if (error || isRefetchError)
+  if ((error || isRefetchError) && !disabled)
     return (
       <div className="flex flex-row justify-center items-center space-x-4">
         <h1>Something went wrong when trying to find a word.</h1>
-        <Button
-          title="try again"
-          className="w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm"
-          onClick={() => {
-            refetch();
-          }}
-        />
+        {!disabled && (
+          <Button
+            title="try again"
+            className="w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm"
+            onClick={() => {
+              refetch();
+            }}
+          />
+        )}
       </div>
     );
 
-  if (!data)
+  if (!hiddenWord)
     return (
       <div className="flex flex-row justify-center items-center space-x-4">
         <h1>Hmmm... Can't think of a word.</h1>
-        <Button
-          title="try again"
-          className="w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm"
-          onClick={() => {
-            refetch();
-          }}
-        />
+        {!disabled && (
+          <Button
+            title="try again"
+            className="w-[4rem] sm:w-[5rem] uppercase text-xs sm:text-sm"
+            onClick={() => {
+              refetch();
+            }}
+          />
+        )}
       </div>
     );
   return (
     <div
       className={`flex flex-row lowercase items-center text-white sm:text-[4rem] xs:text-[2rem] text-[1rem] leading-5 tracking-[1rem] select-none mb-10`}
     >
-      <div className="flex flex-row flex-wrap">
-        {data.word.split("").map((keyword: string, idx: number) => {
+      <div className="flex flex-row flex-wrap leading-10">
+        {hiddenWord.map((keyword: string, idx: number) => {
           const isGuessed = checkGuess(guesses, keyword);
           return (
             <div
@@ -127,7 +137,7 @@ const Keyword: FC<IKeyword> = ({
           );
         })}
       </div>
-      {tts && hint && mode === "single" && (
+      {tts && hint && (
         <div className="flex flex-col items-center">
           <motion.button
             initial="hidden"
