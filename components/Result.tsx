@@ -7,7 +7,7 @@ import confettiAnimation from "../public/lottie/confetti.json";
 
 import { ResultProps } from "@/types";
 
-const Result: FC<ResultProps> = ({ win, lives }) => {
+const Result: FC<ResultProps> = ({ win, lives, status }) => {
   return (
     <div className="relative flex flex-col items-center">
       {win && (
@@ -30,7 +30,7 @@ const Result: FC<ResultProps> = ({ win, lives }) => {
             />
           </>
         )}
-        {!lives && (
+        {!lives || status === "lose" ? (
           <>
             <h1 className="text-white text-center text-[2rem] mb-4 capitalize">
               nice try!
@@ -41,7 +41,7 @@ const Result: FC<ResultProps> = ({ win, lives }) => {
               className="w-[10rem]"
             />
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
