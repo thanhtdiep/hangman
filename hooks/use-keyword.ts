@@ -5,13 +5,14 @@ import GLOBALS from "@/global.json";
 interface Data {
   word: string;
 }
-export const useKeyword = () => {
+export const useKeyword = (props: any) => {
   return useQuery({
     queryKey: [],
     queryFn: async () => {
+      if (props.disabled) return;
       const { data } = await axios.get(GLOBALS.WORD_ROUTE);
       return data as Data;
     },
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
 };
