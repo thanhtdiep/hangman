@@ -107,7 +107,7 @@ const Keyword: FC<IKeyword> = ({
   if (!hiddenWord)
     return (
       <div className="flex flex-row justify-center items-center space-x-4">
-        <h1>Hmmm... Can't think of a word.</h1>
+        <h1>Hmmm... Can&apos;t think of a word.</h1>
         {!disabled && (
           <Button
             title="try again"
