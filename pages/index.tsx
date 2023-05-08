@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Lobby, ButtonProps } from "types";
+import { Lobby } from "types";
 import styles from "../styles/Home.module.css";
 import { v4 as uuid } from "uuid";
 
@@ -7,9 +7,10 @@ import { v4 as uuid } from "uuid";
 import Instuction from "@/components/Instruction";
 import Button from "@/components/Button";
 import { useRouter } from "next/router";
+import withTransition from "@/animations/HOC/withTransition";
 
 // TODO: Add framer animation, add check for duplicate old and new word
-export default function Home() {
+function Home() {
   const [name, setName] = React.useState<string>("");
   const [lobby, setLobby] = React.useState<Lobby>({
     code: "",
@@ -106,3 +107,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default withTransition(Home);

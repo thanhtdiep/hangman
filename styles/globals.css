@@ -62,3 +62,27 @@ a {
 ::-webkit-scrollbar-corner {
   background: black;
 }
+
+/* Page transition */
+:root {
+  --page-transition-color: rgb(17 24 39);
+}
+.slide-in {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--page-transition-color);
+  transform-origin: left;
+}
+
+.slide-out {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--page-transition-color);
+  transform-origin: right;
+}

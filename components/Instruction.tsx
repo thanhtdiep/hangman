@@ -13,7 +13,7 @@ const fadeVariant = {
   },
   visible: {
     opacity: 1,
-    transition: { duration: 0.2 },
+    transition: { duration: 1 },
   },
 };
 
